@@ -1,0 +1,2174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estate Planning Tool</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Shared Dashboard Libraries -->
+    <script src="constants.js"></script>
+    <script src="state-manager.js"></script>
+    <style>
+        :root {
+            --brand-navy: #00205B;
+            --brand-navy-light: #003380;
+            --brand-gold: #D4AF37;
+            --brand-gold-hover: #B5952F;
+            --brand-light: #F9F9F7;
+            --brand-white: #FFFFFF;
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --border: #E2E8F0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--brand-light);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--brand-light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--brand-gold);
+            border-radius: 5px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 4px solid var(--brand-gold);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--brand-navy);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--brand-white);
+            padding: 4px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            border: 2px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: var(--brand-navy);
+            color: var(--brand-white);
+        }
+
+        .tab:hover:not(.active) {
+            background: var(--brand-light);
+            color: var(--brand-navy);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 1200px) {
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .card {
+            background: var(--brand-white);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 32, 91, 0.06);
+        }
+
+        .card-header {
+            background: var(--brand-navy);
+            padding: 14px 20px;
+        }
+
+        .card-header h2 {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--brand-white);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header .icon {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--brand-gold);
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--brand-navy);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group input,
+        .form-group select {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            padding: 10px 12px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: var(--brand-white);
+            color: var(--text-primary);
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--brand-gold);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+
+        .input-prefix {
+            position: relative;
+        }
+
+        .input-prefix span {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .input-prefix input {
+            padding-left: 24px;
+        }
+
+        .stat-card {
+            background: var(--brand-light);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-card.primary {
+            background: var(--brand-navy);
+            border-color: var(--brand-gold);
+        }
+
+        .stat-card.warning {
+            border-color: var(--warning);
+            background: #fffbeb;
+        }
+
+        .stat-card.danger {
+            border-color: var(--danger);
+            background: #fef2f2;
+        }
+
+        .stat-card.success {
+            border-color: var(--success);
+            background: #ecfdf5;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        .stat-card.primary .stat-label {
+            color: var(--brand-gold);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--brand-navy);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-card.primary .stat-value {
+            color: var(--brand-white);
+        }
+
+        .stat-card.warning .stat-value {
+            color: var(--warning);
+        }
+
+        .stat-card.danger .stat-value {
+            color: var(--danger);
+        }
+
+        .stat-card.success .stat-value {
+            color: var(--success);
+        }
+
+        .stat-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .stat-card.primary .stat-sub {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 20px;
+        }
+
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            padding: 16px 24px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 150px;
+        }
+
+        .flow-box.estate {
+            background: var(--brand-navy);
+            color: white;
+            border: 3px solid var(--brand-gold);
+        }
+
+        .flow-box.tax {
+            background: #fef2f2;
+            border: 2px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .flow-box.beneficiary {
+            background: var(--brand-light);
+            border: 2px solid var(--border);
+        }
+
+        .flow-box .amount {
+            font-size: 18px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .flow-box .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .flow-arrow {
+            font-size: 24px;
+            color: var(--brand-gold);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .comparison-table th {
+            background: var(--brand-navy);
+            color: var(--brand-white);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+
+        .comparison-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table tr:nth-child(even) td {
+            background: var(--brand-light);
+        }
+
+        .comparison-table .highlight {
+            background: #fef3c7 !important;
+        }
+
+        .comparison-table .money {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+        }
+
+        .comparison-table .positive {
+            color: var(--success);
+        }
+
+        .comparison-table .negative {
+            color: var(--danger);
+        }
+
+        .action-list {
+            list-style: none;
+        }
+
+        .action-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: var(--brand-light);
+            border-left: 4px solid var(--brand-gold);
+        }
+
+        .action-item.urgent {
+            border-left-color: var(--danger);
+            background: #fef2f2;
+        }
+
+        .action-item.warning {
+            border-left-color: var(--warning);
+            background: #fffbeb;
+        }
+
+        .action-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            flex-shrink: 0;
+            background: var(--brand-gold);
+            color: var(--brand-navy);
+        }
+
+        .action-item.urgent .action-icon {
+            background: var(--danger);
+            color: white;
+        }
+
+        .action-item.warning .action-icon {
+            background: var(--warning);
+            color: white;
+        }
+
+        .action-text {
+            flex: 1;
+        }
+
+        .action-title {
+            font-weight: 600;
+            color: var(--brand-navy);
+        }
+
+        .action-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        .beneficiary-allocation {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .alloc-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--brand-light);
+            border-radius: 8px;
+        }
+
+        .alloc-bar {
+            flex: 1;
+            height: 24px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .alloc-fill {
+            height: 100%;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .alloc-name {
+            width: 120px;
+            font-weight: 600;
+            color: var(--brand-navy);
+            font-size: 13px;
+        }
+
+        .alloc-amount {
+            width: 100px;
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .scenario-card {
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .scenario-card.active {
+            border-color: var(--brand-gold);
+            background: #fefce8;
+        }
+
+        .scenario-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .scenario-title {
+            font-weight: 700;
+            color: var(--brand-navy);
+        }
+
+        .scenario-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--success);
+            color: white;
+        }
+
+        .scenario-badge.warning {
+            background: var(--warning);
+        }
+
+        .scenario-badge.danger {
+            background: var(--danger);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="#D4AF37">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                </svg>
+                Estate Planning Tool
+            </h1>
+            <p class="subtitle">2026 Estate Tax Analysis • $15M Exemption • $19K Annual Gift Exclusion • 40% Top Rate
+            </p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('overview')">Overview</button>
+            <button class="tab" onclick="showTab('assets')">Estate Assets</button>
+            <button class="tab" onclick="showTab('beneficiaries')">Beneficiaries</button>
+            <button class="tab" onclick="showTab('heirimpact')">Heir Tax Impact</button>
+            <button class="tab" onclick="showTab('taxes')">Tax Analysis</button>
+            <button class="tab" onclick="showTab('strategies')">Strategies</button>
+            <button class="tab" onclick="showTab('actions')">Action Items</button>
+        </div>
+
+        <!-- OVERVIEW TAB -->
+        <div id="tab-overview" class="tab-content active">
+            <div class="grid-4">
+                <div class="stat-card primary">
+                    <div class="stat-label">Gross Estate</div>
+                    <div class="stat-value" id="grossEstate">$0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Estate Tax Exposure</div>
+                    <div class="stat-value" id="estateTax">$0</div>
+                    <div class="stat-sub" id="estateTaxRate">0% effective rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Net to Heirs</div>
+                    <div class="stat-value" id="netToHeirs">$0</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-label">Life Insurance Proceeds</div>
+                    <div class="stat-value" id="lifeProceeds">$0</div>
+                    <div class="stat-sub">Tax-free to beneficiaries</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Wealth Transfer Flow</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="flow-diagram">
+                            <div class="flow-row">
+                                <div class="flow-box estate">
+                                    <div class="amount" id="flowGross">$0</div>
+                                    <div class="label">Gross Estate</div>
+                                </div>
+                            </div>
+                            <div class="flow-arrow">↓</div>
+                            <div class="flow-row">
+                                <div class="flow-box tax">
+                                    <div class="amount" id="flowTax">$0</div>
+                                    <div class="label">Estate Tax</div>
+                                </div>
+                                <div class="flow-box" style="background:#ecfdf5;border-color:#10b981;">
+                                    <div class="amount" style="color:#10b981;" id="flowExemption">$0</div>
+                                    <div class="label" style="color:#10b981;">Exemption Used</div>
+                                </div>
+                            </div>
+                            <div class="flow-arrow">↓</div>
+                            <div class="flow-row" id="beneficiaryFlowRow">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Estate Composition</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="estateChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ASSETS TAB -->
+        <div id="tab-assets" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Retirement Accounts (Pre-Tax)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Traditional IRA / 401(k) Balance</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="traditionalBalance"
+                                    value="500000" onchange="calculate()"></div>
+                        </div>
+                        <p style="font-size:12px;color:var(--text-muted);margin-top:8px;">⚠️ Heirs will owe income tax
+                            on distributions (10-year rule applies for non-spouse)</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Roth Accounts (Tax-Free)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Roth IRA / Roth 401(k) Balance</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="rothBalance" value="200000"
+                                    onchange="calculate()"></div>
+                        </div>
+                        <p style="font-size:12px;color:var(--success);margin-top:8px;">✓ Heirs receive tax-free (10-year
+                            rule still applies for timing)</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Taxable Investments</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Brokerage Account Value</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="taxableValue"
+                                    value="300000" onchange="calculate()"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Cost Basis</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="taxableBasis"
+                                    value="150000" onchange="calculate()"></div>
+                        </div>
+                        <p style="font-size:12px;color:var(--success);margin-top:8px;">✓ Heirs receive stepped-up basis,
+                            eliminating embedded gains</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Real Estate</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Primary Residence Value</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="homeValue" value="400000"
+                                    onchange="calculate()"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Other Real Estate Value</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="otherRealEstate" value="0"
+                                    onchange="calculate()"></div>
+                        </div>
+                        <p style="font-size:12px;color:var(--success);margin-top:8px;">✓ Heirs receive stepped-up basis
+                            on real estate</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Life Insurance</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Total Death Benefit</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="lifeInsurance"
+                                    value="500000" onchange="calculate()"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Policy Ownership</label>
+                            <select id="lifeOwnership" onchange="calculate()">
+                                <option value="personal">Personally Owned (included in estate)</option>
+                                <option value="ilit">ILIT Owned (excluded from estate)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Other Assets</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Cash & Bank Accounts</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="cashAssets" value="50000"
+                                    onchange="calculate()"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Business Interests</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="businessAssets" value="0"
+                                    onchange="calculate()"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Other Personal Property</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="otherAssets" value="50000"
+                                    onchange="calculate()"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2><span class="icon"></span>Liabilities (Reduce Taxable Estate)</h2>
+                </div>
+                <div class="card-body">
+                    <div class="grid-3">
+                        <div class="form-group">
+                            <label>Mortgage Balance</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="mortgageBalance"
+                                    value="100000" onchange="calculate()"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Other Debts</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="otherDebts" value="0"
+                                    onchange="calculate()"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Est. Final Expenses</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="finalExpenses"
+                                    value="25000" onchange="calculate()"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BENEFICIARIES TAB -->
+        <div id="tab-beneficiaries" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Beneficiary Allocations</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="beneficiaryInputs">
+                            <div class="form-group"
+                                style="display:grid;grid-template-columns:1fr 80px 80px 60px;gap:8px;align-items:end;margin-bottom:12px;">
+                                <div><label>Name</label><input type="text" id="ben1Name" value="Spouse"
+                                        onchange="calculate()"></div>
+                                <div><label>Age</label><input type="number" id="ben1Age" value="62"
+                                        onchange="calculate()"></div>
+                                <div><label>%</label><input type="number" id="ben1Pct" value="100"
+                                        onchange="calculate()"></div>
+                                <div><label>Type</label><select id="ben1Type" onchange="calculate()">
+                                        <option value="spouse">Spouse</option>
+                                        <option value="child">Child</option>
+                                        <option value="grandchild">Grandchild</option>
+                                        <option value="trust">Trust</option>
+                                        <option value="charity">Charity</option>
+                                    </select></div>
+                            </div>
+                            <div class="form-group"
+                                style="display:grid;grid-template-columns:1fr 80px 80px 60px;gap:8px;align-items:end;margin-bottom:12px;">
+                                <div><label>Name</label><input type="text" id="ben2Name" value="Child 1"
+                                        onchange="calculate()"></div>
+                                <div><label>Age</label><input type="number" id="ben2Age" value="35"
+                                        onchange="calculate()"></div>
+                                <div><label>%</label><input type="number" id="ben2Pct" value="0" onchange="calculate()">
+                                </div>
+                                <div><label>Type</label><select id="ben2Type" onchange="calculate()">
+                                        <option value="spouse">Spouse</option>
+                                        <option value="child" selected>Child</option>
+                                        <option value="grandchild">Grandchild</option>
+                                        <option value="trust">Trust</option>
+                                        <option value="charity">Charity</option>
+                                    </select></div>
+                            </div>
+                            <div class="form-group"
+                                style="display:grid;grid-template-columns:1fr 80px 80px 60px;gap:8px;align-items:end;margin-bottom:12px;">
+                                <div><label>Name</label><input type="text" id="ben3Name" value="Child 2"
+                                        onchange="calculate()"></div>
+                                <div><label>Age</label><input type="number" id="ben3Age" value="32"
+                                        onchange="calculate()"></div>
+                                <div><label>%</label><input type="number" id="ben3Pct" value="0" onchange="calculate()">
+                                </div>
+                                <div><label>Type</label><select id="ben3Type" onchange="calculate()">
+                                        <option value="spouse">Spouse</option>
+                                        <option value="child" selected>Child</option>
+                                        <option value="grandchild">Grandchild</option>
+                                        <option value="trust">Trust</option>
+                                        <option value="charity">Charity</option>
+                                    </select></div>
+                            </div>
+                            <div class="form-group"
+                                style="display:grid;grid-template-columns:1fr 80px 80px 60px;gap:8px;align-items:end;">
+                                <div><label>Name</label><input type="text" id="ben4Name" value="Charity"
+                                        onchange="calculate()"></div>
+                                <div><label>Age</label><input type="number" id="ben4Age" value="0"
+                                        onchange="calculate()"></div>
+                                <div><label>%</label><input type="number" id="ben4Pct" value="0" onchange="calculate()">
+                                </div>
+                                <div><label>Type</label><select id="ben4Type" onchange="calculate()">
+                                        <option value="spouse">Spouse</option>
+                                        <option value="child">Child</option>
+                                        <option value="grandchild">Grandchild</option>
+                                        <option value="trust">Trust</option>
+                                        <option value="charity" selected>Charity</option>
+                                    </select></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Beneficiary Impact Analysis</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="beneficiary-allocation" id="beneficiaryBars">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2><span class="icon"></span>Inherited Account Tax Impact (Non-Spouse)</h2>
+                </div>
+                <div class="card-body">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Account Type</th>
+                                <th>Amount Inherited</th>
+                                <th>Tax Treatment</th>
+                                <th>Est. Tax Owed</th>
+                                <th>Net After Tax</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inheritedTaxTable">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                    <p style="font-size:11px;color:var(--text-muted);margin-top:12px;">* Non-spouse beneficiaries must
+                        withdraw inherited IRA/401(k) within 10 years. Estimated tax assumes 24% federal + 5% state
+                        blended rate spread over 10 years.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- HEIR TAX IMPACT TAB -->
+        <div id="tab-heirimpact" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Asset-to-Beneficiary Allocation</h2>
+                    </div>
+                    <div class="card-body">
+                        <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Assign specific asset
+                            types to beneficiaries to optimize tax efficiency. Percentages should total 100% per row.
+                        </p>
+                        <div style="overflow-x:auto;">
+                            <table class="comparison-table" id="allocationMatrix">
+                                <thead>
+                                    <tr>
+                                        <th>Asset Type</th>
+                                        <th>Total Value</th>
+                                        <th id="allocHeader1">Beneficiary 1</th>
+                                        <th id="allocHeader2">Beneficiary 2</th>
+                                        <th id="allocHeader3">Beneficiary 3</th>
+                                        <th id="allocHeader4">Charity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Traditional IRA/401k</strong><br><span
+                                                style="font-size:10px;color:var(--text-muted);">Fully taxable to
+                                                heirs</span></td>
+                                        <td class="money" id="allocIRATotal">$0</td>
+                                        <td><input type="number" id="allocIRA1" value="0" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocIRA2" value="50" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocIRA3" value="50" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocIRA4" value="0" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Roth IRA/401k</strong><br><span
+                                                style="font-size:10px;color:var(--success);">Tax-free to heirs</span>
+                                        </td>
+                                        <td class="money" id="allocRothTotal">$0</td>
+                                        <td><input type="number" id="allocRoth1" value="0" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocRoth2" value="50" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocRoth3" value="50" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocRoth4" value="0" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Taxable Investments</strong><br><span
+                                                style="font-size:10px;color:var(--success);">Step-up in basis</span>
+                                        </td>
+                                        <td class="money" id="allocTaxableTotal">$0</td>
+                                        <td><input type="number" id="allocTaxable1" value="0" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocTaxable2" value="50" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocTaxable3" value="50" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocTaxable4" value="0" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Real Estate</strong><br><span
+                                                style="font-size:10px;color:var(--success);">Step-up in basis</span>
+                                        </td>
+                                        <td class="money" id="allocRETotal">$0</td>
+                                        <td><input type="number" id="allocRE1" value="100" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocRE2" value="0" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocRE3" value="0" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocRE4" value="0" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Life Insurance</strong><br><span
+                                                style="font-size:10px;color:var(--success);">Tax-free (income)</span>
+                                        </td>
+                                        <td class="money" id="allocLifeTotal">$0</td>
+                                        <td><input type="number" id="allocLife1" value="100" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocLife2" value="0" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocLife3" value="0" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                        <td><input type="number" id="allocLife4" value="0" min="0" max="100"
+                                                style="width:60px;" onchange="calculateHeirImpact()">%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Heir Tax Rates</h2>
+                    </div>
+                    <div class="card-body">
+                        <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;">Enter each beneficiary's
+                            estimated marginal tax rate on inherited income.</p>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                            <div class="form-group">
+                                <label id="taxRateLabel1">Beneficiary 1 Tax Rate</label>
+                                <div class="input-prefix"><input type="number" id="heirTaxRate1" value="0" min="0"
+                                        max="50" onchange="calculateHeirImpact()"><span
+                                        style="right:12px;left:auto;">%</span></div>
+                                <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">Spouse - marital
+                                    deduction applies</div>
+                            </div>
+                            <div class="form-group">
+                                <label id="taxRateLabel2">Beneficiary 2 Tax Rate</label>
+                                <div class="input-prefix"><input type="number" id="heirTaxRate2" value="32" min="0"
+                                        max="50" onchange="calculateHeirImpact()"><span
+                                        style="right:12px;left:auto;">%</span></div>
+                                <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">High earner - 32%
+                                    bracket</div>
+                            </div>
+                            <div class="form-group">
+                                <label id="taxRateLabel3">Beneficiary 3 Tax Rate</label>
+                                <div class="input-prefix"><input type="number" id="heirTaxRate3" value="22" min="0"
+                                        max="50" onchange="calculateHeirImpact()"><span
+                                        style="right:12px;left:auto;">%</span></div>
+                                <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">Moderate earner -
+                                    22% bracket</div>
+                            </div>
+                            <div class="form-group">
+                                <label id="taxRateLabel4">Charity Tax Rate</label>
+                                <div class="input-prefix"><input type="number" id="heirTaxRate4" value="0" min="0"
+                                        max="50" onchange="calculateHeirImpact()" disabled><span
+                                        style="right:12px;left:auto;">%</span></div>
+                                <div style="font-size:10px;color:var(--success);margin-top:4px;">Tax-exempt organization
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2><span class="icon"></span>Scenario Comparison: Pro-Rata vs. Tax-Optimized Distribution</h2>
+                </div>
+                <div class="card-body">
+                    <div class="grid-2">
+                        <div>
+                            <h3
+                                style="font-size:14px;color:var(--brand-navy);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                                <span
+                                    style="background:var(--warning);color:white;padding:4px 8px;border-radius:4px;font-size:11px;">SCENARIO
+                                    A</span>
+                                Pro-Rata Distribution (Equal Split)
+                            </h3>
+                            <table class="comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th>Beneficiary</th>
+                                        <th>Gross Inheritance</th>
+                                        <th>Est. Tax Owed</th>
+                                        <th>Net Inheritance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scenarioATable"></tbody>
+                                <tfoot>
+                                    <tr style="background:var(--brand-light);font-weight:700;">
+                                        <td>TOTAL</td>
+                                        <td class="money" id="scenarioAGross">$0</td>
+                                        <td class="money negative" id="scenarioATax">$0</td>
+                                        <td class="money" id="scenarioANet">$0</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div>
+                            <h3
+                                style="font-size:14px;color:var(--brand-navy);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                                <span
+                                    style="background:var(--success);color:white;padding:4px 8px;border-radius:4px;font-size:11px;">SCENARIO
+                                    B</span>
+                                Tax-Optimized Distribution
+                            </h3>
+                            <table class="comparison-table">
+                                <thead>
+                                    <tr>
+                                        <th>Beneficiary</th>
+                                        <th>Gross Inheritance</th>
+                                        <th>Est. Tax Owed</th>
+                                        <th>Net Inheritance</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="scenarioBTable"></tbody>
+                                <tfoot>
+                                    <tr style="background:var(--brand-light);font-weight:700;">
+                                        <td>TOTAL</td>
+                                        <td class="money" id="scenarioBGross">$0</td>
+                                        <td class="money negative" id="scenarioBTax">$0</td>
+                                        <td class="money" id="scenarioBNet">$0</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div
+                        style="margin-top:20px;padding:16px;background:var(--brand-light);border-radius:10px;border:2px solid var(--brand-gold);">
+                        <div
+                            style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+                            <div>
+                                <div
+                                    style="font-size:12px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">
+                                    Tax Savings from Optimization</div>
+                                <div style="font-size:28px;font-weight:700;color:var(--success);font-family:'JetBrains Mono';"
+                                    id="taxSavings">$0</div>
+                            </div>
+                            <div>
+                                <div
+                                    style="font-size:12px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">
+                                    Additional to Heirs</div>
+                                <div style="font-size:28px;font-weight:700;color:var(--brand-navy);font-family:'JetBrains Mono';"
+                                    id="additionalToHeirs">$0</div>
+                            </div>
+                            <div style="flex:1;min-width:200px;">
+                                <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">Tax Comparison
+                                </div>
+                                <div
+                                    style="height:24px;background:var(--border);border-radius:4px;overflow:hidden;display:flex;">
+                                    <div id="taxBarA"
+                                        style="background:var(--warning);height:100%;transition:width 0.3s;"></div>
+                                    <div id="taxBarB"
+                                        style="background:var(--success);height:100%;transition:width 0.3s;"></div>
+                                </div>
+                                <div style="display:flex;justify-content:space-between;font-size:10px;margin-top:4px;">
+                                    <span style="color:var(--warning);">Scenario A Tax</span>
+                                    <span style="color:var(--success);">Scenario B Tax</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2><span class="icon"></span>Optimization Recommendations</h2>
+                </div>
+                <div class="card-body">
+                    <div id="optimizationRecs" style="display:flex;flex-direction:column;gap:12px;">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAXES TAB -->
+        <div id="tab-taxes" class="tab-content">
+            <div class="grid-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Federal Estate Tax (2026)</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>2026 Exemption Amount</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="fedExemption"
+                                    value="15000000" onchange="calculate()"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Portability (Deceased Spouse Unused)</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="portability" value="0"
+                                    onchange="calculate()"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Federal Estate Tax Rate</label>
+                            <select id="fedRate" onchange="calculate()">
+                                <option value="0.40">40% (Current Law)</option>
+                            </select>
+                        </div>
+                        <div style="background:var(--brand-light);padding:12px;border-radius:8px;margin-top:12px;">
+                            <div
+                                style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">
+                                Total Federal Exemption</div>
+                            <div style="font-size:20px;font-weight:700;color:var(--brand-navy);font-family:'JetBrains Mono';"
+                                id="totalFedExemption">$15,000,000</div>
+                            <div style="font-size:10px;color:var(--text-muted);margin-top:4px;">+ DSUEA (portable from
+                                deceased spouse)</div>
+                        </div>
+                        <div
+                            style="margin-top:12px;padding:10px;background:#ecfdf5;border-radius:8px;border:1px solid var(--success);">
+                            <div style="font-size:11px;font-weight:600;color:var(--success);">2026 Key Limits</div>
+                            <div style="font-size:11px;color:var(--text-secondary);margin-top:4px;">
+                                • GST Tax Exemption: $15,000,000 (not portable)<br>
+                                • Annual Gift Exclusion: $19,000/person<br>
+                                • Noncitizen Spouse Gift: $194,000/year
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>State Estate Tax</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>State</label>
+                            <select id="estateState" onchange="updateStateExemption()">
+                                <option value="none">No State Estate Tax</option>
+                                <option value="CT">Connecticut ($13.61M)</option>
+                                <option value="DC">DC ($4.53M)</option>
+                                <option value="HI">Hawaii ($5.49M)</option>
+                                <option value="IL">Illinois ($4M)</option>
+                                <option value="ME">Maine ($6.8M)</option>
+                                <option value="MD">Maryland ($5M)</option>
+                                <option value="MA">Massachusetts ($2M)</option>
+                                <option value="MN">Minnesota ($3M)</option>
+                                <option value="NY">New York ($6.94M)</option>
+                                <option value="OR">Oregon ($1M)</option>
+                                <option value="RI">Rhode Island ($1.77M)</option>
+                                <option value="VT">Vermont ($5M)</option>
+                                <option value="WA">Washington ($2.193M)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>State Exemption</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="stateExemption" value="0"
+                                    onchange="calculate()"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>State Estate Tax Rate (Top Bracket)</label>
+                            <input type="number" id="stateRate" value="0" step="0.1" onchange="calculate()"> %
+                        </div>
+                        <div style="background:#fef2f2;padding:12px;border-radius:8px;margin-top:12px;">
+                            <div style="font-size:11px;color:var(--danger);text-transform:uppercase;font-weight:600;">
+                                State Estate Tax</div>
+                            <div style="font-size:20px;font-weight:700;color:var(--danger);font-family:'JetBrains Mono';"
+                                id="stateEstateTax">$0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Tax Summary</h2>
+                    </div>
+                    <div class="card-body">
+                        <div style="display:flex;flex-direction:column;gap:12px;">
+                            <div
+                                style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+                                <span>Gross Estate</span>
+                                <span style="font-family:'JetBrains Mono';font-weight:600;" id="sumGross">$0</span>
+                            </div>
+                            <div
+                                style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+                                <span>Less: Liabilities</span>
+                                <span style="font-family:'JetBrains Mono';font-weight:600;color:var(--danger);"
+                                    id="sumLiabilities">-$0</span>
+                            </div>
+                            <div
+                                style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+                                <span>Taxable Estate</span>
+                                <span style="font-family:'JetBrains Mono';font-weight:600;" id="sumTaxable">$0</span>
+                            </div>
+                            <div
+                                style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+                                <span>Less: Federal Exemption</span>
+                                <span style="font-family:'JetBrains Mono';font-weight:600;color:var(--success);"
+                                    id="sumFedExempt">-$0</span>
+                            </div>
+                            <div
+                                style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+                                <span>Federal Tax</span>
+                                <span style="font-family:'JetBrains Mono';font-weight:600;color:var(--danger);"
+                                    id="sumFedTax">$0</span>
+                            </div>
+                            <div
+                                style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);">
+                                <span>State Tax</span>
+                                <span style="font-family:'JetBrains Mono';font-weight:600;color:var(--danger);"
+                                    id="sumStateTax">$0</span>
+                            </div>
+                            <div
+                                style="display:flex;justify-content:space-between;padding:12px;background:var(--brand-navy);border-radius:8px;color:white;">
+                                <span style="font-weight:600;">Net to Heirs</span>
+                                <span style="font-family:'JetBrains Mono';font-weight:700;font-size:18px;"
+                                    id="sumNet">$0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2><span class="icon"></span>Sunset Scenario: 2026 Exemption vs Post-2025 ($7M)</h2>
+                </div>
+                <div class="card-body">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Scenario</th>
+                                <th>Exemption</th>
+                                <th>Taxable Amount</th>
+                                <th>Federal Tax</th>
+                                <th>Net to Heirs</th>
+                                <th>Difference</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sunsetTable">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                    <p style="font-size:11px;color:var(--text-muted);margin-top:12px;">⚠️ Without Congressional action,
+                        the estate tax exemption is scheduled to revert to approximately $7M (indexed) after 2025. The
+                        2026 exemption of $15M + DSUEA applies to gifts, estates, and GST. Noncitizen spouse annual gift
+                        exclusion: $194,000.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- STRATEGIES TAB -->
+        <div id="tab-strategies" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Annual Gifting Strategy</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Annual Gift Exclusion (2026)</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="annualExclusion"
+                                    value="19000" readonly></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Number of Beneficiaries</label>
+                            <input type="number" id="numGiftees" value="4" onchange="calcGifting()">
+                        </div>
+                        <div class="form-group">
+                            <label>Years of Gifting</label>
+                            <input type="number" id="yearsGifting" value="10" onchange="calcGifting()">
+                        </div>
+                        <div class="form-group">
+                            <label>Number of Donors (1 or 2 if married)</label>
+                            <select id="numDonors" onchange="calcGifting()">
+                                <option value="1">1 (Individual)</option>
+                                <option value="2" selected>2 (Married, Gift-Splitting)</option>
+                            </select>
+                        </div>
+                        <div style="background:var(--brand-light);padding:16px;border-radius:8px;margin-top:12px;">
+                            <div
+                                style="font-size:11px;color:var(--text-muted);text-transform:uppercase;font-weight:600;">
+                                Total Removed from Estate</div>
+                            <div style="font-size:24px;font-weight:700;color:var(--success);font-family:'JetBrains Mono';"
+                                id="giftingTotal">$0</div>
+                            <div style="font-size:12px;color:var(--text-muted);margin-top:4px;" id="giftingDetail">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Roth Conversion Impact</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label>Amount to Convert to Roth</label>
+                            <div class="input-prefix"><span>$</span><input type="number" id="rothConversion"
+                                    value="100000" onchange="calcRothImpact()"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Your Marginal Tax Rate</label>
+                            <input type="number" id="yourTaxRate" value="32" onchange="calcRothImpact()"> %
+                        </div>
+                        <div class="form-group">
+                            <label>Heir's Expected Tax Rate</label>
+                            <input type="number" id="heirTaxRate" value="24" onchange="calcRothImpact()"> %
+                        </div>
+                        <div class="scenario-card active" style="margin-top:12px;">
+                            <div class="scenario-header">
+                                <span class="scenario-title">Roth Conversion Benefit</span>
+                                <span class="scenario-badge" id="rothBadge">Recommended</span>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                                <div>
+                                    <div style="font-size:11px;color:var(--text-muted);">Tax You Pay Now</div>
+                                    <div style="font-size:16px;font-weight:700;color:var(--danger);" id="rothTaxNow">$0
+                                    </div>
+                                </div>
+                                <div>
+                                    <div style="font-size:11px;color:var(--text-muted);">Tax Heir Saves</div>
+                                    <div style="font-size:16px;font-weight:700;color:var(--success);" id="rothTaxSaved">
+                                        $0</div>
+                                </div>
+                            </div>
+                            <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+                                <div style="font-size:11px;color:var(--text-muted);">Net Family Benefit</div>
+                                <div style="font-size:20px;font-weight:700;" id="rothNetBenefit">$0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Charitable Strategies</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="scenario-card">
+                            <div class="scenario-title">Qualified Charitable Distribution (QCD)</div>
+                            <p style="font-size:12px;color:var(--text-muted);margin:8px 0;">If 70½+, donate up to
+                                <strong>$105,000/year</strong> directly from IRA to charity. Satisfies RMD without
+                                income recognition.
+                            </p>
+                            <div style="color:var(--success);font-weight:600;font-size:13px;">✓ Reduces taxable estate &
+                                income simultaneously</div>
+                        </div>
+                        <div class="scenario-card" style="margin-top:12px;">
+                            <div class="scenario-title">Donor Advised Fund (DAF)</div>
+                            <p style="font-size:12px;color:var(--text-muted);margin:8px 0;">Contribute appreciated
+                                securities for immediate deduction. Recommend grants over time.</p>
+                            <div style="color:var(--success);font-weight:600;font-size:13px;">✓ Avoid capital gains +
+                                get deduction + reduce estate</div>
+                        </div>
+                        <div class="scenario-card" style="margin-top:12px;">
+                            <div class="scenario-title">Charitable Remainder Trust (CRT)</div>
+                            <p style="font-size:12px;color:var(--text-muted);margin:8px 0;">Receive income stream for
+                                life, remainder to charity. Partial deduction now.</p>
+                            <div style="color:var(--success);font-weight:600;font-size:13px;">✓ Income + tax benefits +
+                                charitable legacy</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Trust Strategies</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="scenario-card">
+                            <div class="scenario-title">Irrevocable Life Insurance Trust (ILIT)</div>
+                            <p style="font-size:12px;color:var(--text-muted);margin:8px 0;">Removes life insurance
+                                proceeds from taxable estate.</p>
+                            <div style="font-size:14px;font-weight:600;" id="ilitSavings">Potential savings: $0</div>
+                        </div>
+                        <div class="scenario-card" style="margin-top:12px;">
+                            <div class="scenario-title">Spousal Lifetime Access Trust (SLAT)</div>
+                            <p style="font-size:12px;color:var(--text-muted);margin:8px 0;">Gift assets to irrevocable
+                                trust for spouse's benefit. Uses exemption now before potential sunset.</p>
+                            <div style="color:var(--warning);font-weight:600;font-size:13px;">⚠️ Consider before 2026
+                                exemption sunset</div>
+                        </div>
+                        <div class="scenario-card" style="margin-top:12px;">
+                            <div class="scenario-title">Grantor Retained Annuity Trust (GRAT)</div>
+                            <p style="font-size:12px;color:var(--text-muted);margin:8px 0;">Transfer appreciation to
+                                heirs with minimal gift tax. Works best with appreciating assets.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIONS TAB -->
+        <div id="tab-actions" class="tab-content">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Recommended Action Items</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="action-list" id="actionList">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span class="icon"></span>Document Checklist</h2>
+                    </div>
+                    <div class="card-body">
+                        <ul class="action-list">
+                            <li class="action-item">
+                                <div class="action-icon">📄</div>
+                                <div class="action-text">
+                                    <div class="action-title">Last Will & Testament</div>
+                                    <div class="action-desc">Names executor, guardians for minors, and distribution
+                                        wishes</div>
+                                </div>
+                            </li>
+                            <li class="action-item">
+                                <div class="action-icon">🏛️</div>
+                                <div class="action-text">
+                                    <div class="action-title">Revocable Living Trust</div>
+                                    <div class="action-desc">Avoids probate, provides privacy, enables seamless
+                                        management</div>
+                                </div>
+                            </li>
+                            <li class="action-item">
+                                <div class="action-icon">⚖️</div>
+                                <div class="action-text">
+                                    <div class="action-title">Durable Power of Attorney</div>
+                                    <div class="action-desc">Names agent for financial decisions if incapacitated</div>
+                                </div>
+                            </li>
+                            <li class="action-item">
+                                <div class="action-icon">🏥</div>
+                                <div class="action-text">
+                                    <div class="action-title">Healthcare Directive / Living Will</div>
+                                    <div class="action-desc">Medical wishes and healthcare proxy designation</div>
+                                </div>
+                            </li>
+                            <li class="action-item">
+                                <div class="action-icon">👤</div>
+                                <div class="action-text">
+                                    <div class="action-title">Beneficiary Designation Review</div>
+                                    <div class="action-desc">IRAs, 401(k)s, life insurance, TOD accounts - review
+                                        annually</div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2><span class="icon"></span>Professional Referrals Needed</h2>
+                </div>
+                <div class="card-body">
+                    <div class="grid-3">
+                        <div class="scenario-card" id="needAttorney">
+                            <div class="scenario-title">Estate Planning Attorney</div>
+                            <p style="font-size:12px;color:var(--text-muted);margin:8px 0;">For wills, trusts, and
+                                complex estate structures</p>
+                            <div style="font-size:13px;font-weight:600;color:var(--warning);" id="attorneyReason">Review
+                                existing documents</div>
+                        </div>
+                        <div class="scenario-card" id="needCPA">
+                            <div class="scenario-title">Tax Professional (CPA)</div>
+                            <p style="font-size:12px;color:var(--text-muted);margin:8px 0;">For tax planning and
+                                compliance</p>
+                            <div style="font-size:13px;font-weight:600;color:var(--text-muted);" id="cpaReason">Annual
+                                tax planning review</div>
+                        </div>
+                        <div class="scenario-card" id="needInsurance">
+                            <div class="scenario-title">Insurance Specialist</div>
+                            <p style="font-size:12px;color:var(--text-muted);margin:8px 0;">For life insurance and ILIT
+                                strategies</p>
+                            <div style="font-size:13px;font-weight:600;color:var(--text-muted);" id="insuranceReason">
+                                Coverage review</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fC = (n) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0);
+        const getVal = (id) => parseFloat(document.getElementById(id)?.value) || 0;
+
+        let estateChart = null;
+
+        const stateExemptions = {
+            'none': { exemption: 0, rate: 0 },
+            'CT': { exemption: 13610000, rate: 12 },
+            'DC': { exemption: 4530000, rate: 16 },
+            'HI': { exemption: 5490000, rate: 20 },
+            'IL': { exemption: 4000000, rate: 16 },
+            'ME': { exemption: 6800000, rate: 12 },
+            'MD': { exemption: 5000000, rate: 16 },
+            'MA': { exemption: 2000000, rate: 16 },
+            'MN': { exemption: 3000000, rate: 16 },
+            'NY': { exemption: 6940000, rate: 16 },
+            'OR': { exemption: 1000000, rate: 16 },
+            'RI': { exemption: 1774583, rate: 16 },
+            'VT': { exemption: 5000000, rate: 16 },
+            'WA': { exemption: 2193000, rate: 20 }
+        };
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tabId).classList.add('active');
+            event.target.classList.add('active');
+            if (tabId === 'overview') renderChart();
+        }
+
+        function updateStateExemption() {
+            const state = document.getElementById('estateState').value;
+            const info = stateExemptions[state] || { exemption: 0, rate: 0 };
+            document.getElementById('stateExemption').value = info.exemption;
+            document.getElementById('stateRate').value = info.rate;
+            calculate();
+        }
+
+        function calculate() {
+            // Gather assets
+            const traditional = getVal('traditionalBalance');
+            const roth = getVal('rothBalance');
+            const taxable = getVal('taxableValue');
+            const home = getVal('homeValue');
+            const otherRE = getVal('otherRealEstate');
+            const lifeIns = getVal('lifeInsurance');
+            const lifeOwnership = document.getElementById('lifeOwnership').value;
+            const cash = getVal('cashAssets');
+            const business = getVal('businessAssets');
+            const other = getVal('otherAssets');
+
+            // Liabilities
+            const mortgage = getVal('mortgageBalance');
+            const debts = getVal('otherDebts');
+            const finalExp = getVal('finalExpenses');
+            const totalLiabilities = mortgage + debts + finalExp;
+
+            // Life insurance treatment
+            const lifeInEstate = lifeOwnership === 'personal' ? lifeIns : 0;
+            const lifeOutsideEstate = lifeOwnership === 'ilit' ? lifeIns : 0;
+
+            const grossEstate = traditional + roth + taxable + home + otherRE + lifeInEstate + cash + business + other;
+            const taxableEstate = Math.max(0, grossEstate - totalLiabilities);
+
+            // Federal
+            const fedExemption = getVal('fedExemption') + getVal('portability');
+            const fedRate = parseFloat(document.getElementById('fedRate').value);
+            const federalTaxable = Math.max(0, taxableEstate - fedExemption);
+            const federalTax = federalTaxable * fedRate;
+
+            // State
+            const stateExemption = getVal('stateExemption');
+            const stateRate = getVal('stateRate') / 100;
+            const stateTaxable = Math.max(0, taxableEstate - stateExemption);
+            const stateTax = stateExemption > 0 ? stateTaxable * stateRate : 0;
+
+            const totalTax = federalTax + stateTax;
+            const netToHeirs = taxableEstate - totalTax + lifeOutsideEstate;
+
+            // Update overview
+            document.getElementById('grossEstate').textContent = fC(grossEstate);
+            document.getElementById('estateTax').textContent = fC(totalTax);
+            document.getElementById('estateTaxRate').textContent = grossEstate > 0 ? ((totalTax / grossEstate) * 100).toFixed(1) + '% effective rate' : '0% effective rate';
+            document.getElementById('netToHeirs').textContent = fC(netToHeirs);
+            document.getElementById('lifeProceeds').textContent = fC(lifeIns);
+
+            // Flow diagram
+            document.getElementById('flowGross').textContent = fC(grossEstate);
+            document.getElementById('flowTax').textContent = fC(totalTax);
+            document.getElementById('flowExemption').textContent = fC(Math.min(taxableEstate, fedExemption));
+
+            // Tax summary
+            document.getElementById('sumGross').textContent = fC(grossEstate);
+            document.getElementById('sumLiabilities').textContent = '-' + fC(totalLiabilities);
+            document.getElementById('sumTaxable').textContent = fC(taxableEstate);
+            document.getElementById('sumFedExempt').textContent = '-' + fC(Math.min(taxableEstate, fedExemption));
+            document.getElementById('sumFedTax').textContent = fC(federalTax);
+            document.getElementById('sumStateTax').textContent = fC(stateTax);
+            document.getElementById('sumNet').textContent = fC(netToHeirs);
+            document.getElementById('totalFedExemption').textContent = fC(fedExemption);
+            document.getElementById('stateEstateTax').textContent = fC(stateTax);
+
+            // Beneficiary calculations
+            updateBeneficiaries(netToHeirs, traditional, roth, taxable + home + otherRE + cash + other - totalLiabilities, lifeIns);
+
+            // Sunset comparison
+            updateSunsetTable(taxableEstate, fedExemption, fedRate, totalLiabilities);
+
+            // ILIT savings
+            if (lifeOwnership === 'personal' && lifeIns > 0) {
+                const ilitSavings = lifeIns * fedRate;
+                document.getElementById('ilitSavings').textContent = 'Potential savings: ' + fC(ilitSavings);
+                document.getElementById('ilitSavings').style.color = 'var(--success)';
+            } else {
+                document.getElementById('ilitSavings').textContent = 'Already in ILIT or no life insurance';
+                document.getElementById('ilitSavings').style.color = 'var(--text-muted)';
+            }
+
+            // Actions
+            generateActions(grossEstate, totalTax, fedExemption, lifeOwnership, lifeIns);
+
+            renderChart();
+            calcGifting();
+            calcRothImpact();
+        }
+
+        function updateBeneficiaries(netToHeirs, traditional, roth, otherAssets, lifeIns) {
+            const beneficiaries = [];
+            for (let i = 1; i <= 4; i++) {
+                const name = document.getElementById(`ben${i}Name`).value;
+                const pct = getVal(`ben${i}Pct`);
+                const type = document.getElementById(`ben${i}Type`).value;
+                const age = getVal(`ben${i}Age`);
+                if (name && pct > 0) {
+                    beneficiaries.push({ name, pct, type, age });
+                }
+            }
+
+            // Flow row
+            const flowRow = document.getElementById('beneficiaryFlowRow');
+            flowRow.innerHTML = beneficiaries.map(b => `
+                <div class="flow-box beneficiary">
+                    <div class="amount">${fC(netToHeirs * b.pct / 100)}</div>
+                    <div class="label">${b.name} (${b.pct}%)</div>
+                </div>
+            `).join('');
+
+            // Bars
+            const colors = ['#00205B', '#D4AF37', '#10b981', '#8b5cf6'];
+            const barsHtml = beneficiaries.map((b, i) => `
+                <div class="alloc-row">
+                    <div class="alloc-name">${b.name}</div>
+                    <div class="alloc-bar">
+                        <div class="alloc-fill" style="width:${b.pct}%;background:${colors[i % colors.length]}">${b.pct}%</div>
+                    </div>
+                    <div class="alloc-amount">${fC(netToHeirs * b.pct / 100)}</div>
+                </div>
+            `).join('');
+            document.getElementById('beneficiaryBars').innerHTML = barsHtml;
+
+            // Tax impact table for non-spouse
+            const heirTaxRate = 0.29; // 24% fed + 5% state assumed
+            let tableHtml = '';
+
+            // Spouse gets unlimited marital deduction
+            const spouseBen = beneficiaries.find(b => b.type === 'spouse');
+            const nonSpousePct = beneficiaries.filter(b => b.type !== 'spouse' && b.type !== 'charity').reduce((s, b) => s + b.pct, 0) / 100;
+
+            if (nonSpousePct > 0) {
+                const tradInherited = traditional * nonSpousePct;
+                const rothInherited = roth * nonSpousePct;
+                const otherInherited = otherAssets * nonSpousePct;
+
+                tableHtml += `<tr><td>Traditional IRA/401(k)</td><td class="money">${fC(tradInherited)}</td><td>Taxable over 10 years</td><td class="money negative">${fC(tradInherited * heirTaxRate)}</td><td class="money">${fC(tradInherited * (1 - heirTaxRate))}</td></tr>`;
+                tableHtml += `<tr class="highlight"><td>Roth IRA/401(k)</td><td class="money">${fC(rothInherited)}</td><td>Tax-free</td><td class="money positive">$0</td><td class="money">${fC(rothInherited)}</td></tr>`;
+                tableHtml += `<tr class="highlight"><td>Taxable/Real Estate</td><td class="money">${fC(otherInherited)}</td><td>Stepped-up basis</td><td class="money positive">$0*</td><td class="money">${fC(otherInherited)}</td></tr>`;
+            } else {
+                tableHtml = '<tr><td colspan="5" style="text-align:center;color:var(--text-muted);">All assets going to spouse (unlimited marital deduction) or charity</td></tr>';
+            }
+            document.getElementById('inheritedTaxTable').innerHTML = tableHtml;
+        }
+
+        function updateSunsetTable(taxableEstate, currentExemption, fedRate, liabilities) {
+            const sunsetExemption = 7000000;
+
+            const currentTaxable = Math.max(0, taxableEstate - currentExemption);
+            const currentTax = currentTaxable * fedRate;
+            const currentNet = taxableEstate - currentTax;
+
+            const sunsetTaxable = Math.max(0, taxableEstate - sunsetExemption);
+            const sunsetTax = sunsetTaxable * fedRate;
+            const sunsetNet = taxableEstate - sunsetTax;
+
+            const difference = sunsetTax - currentTax;
+
+            document.getElementById('sunsetTable').innerHTML = `
+                <tr>
+                    <td>Current Law (2026)</td>
+                    <td class="money">${fC(currentExemption)}</td>
+                    <td class="money">${fC(currentTaxable)}</td>
+                    <td class="money">${fC(currentTax)}</td>
+                    <td class="money">${fC(currentNet)}</td>
+                    <td>-</td>
+                </tr>
+                <tr class="${difference > 0 ? 'highlight' : ''}">
+                    <td>Post-Sunset (~$7M)</td>
+                    <td class="money">${fC(sunsetExemption)}</td>
+                    <td class="money">${fC(sunsetTaxable)}</td>
+                    <td class="money negative">${fC(sunsetTax)}</td>
+                    <td class="money">${fC(sunsetNet)}</td>
+                    <td class="money ${difference > 0 ? 'negative' : ''}">${difference > 0 ? '-' + fC(difference) : '$0'}</td>
+                </tr>
+            `;
+        }
+
+        function calcGifting() {
+            const exclusion = getVal('annualExclusion');
+            const numBen = getVal('numGiftees');
+            const years = getVal('yearsGifting');
+            const donors = parseInt(document.getElementById('numDonors').value);
+
+            const total = exclusion * numBen * years * donors;
+            document.getElementById('giftingTotal').textContent = fC(total);
+            document.getElementById('giftingDetail').textContent = `${fC(exclusion)} × ${numBen} beneficiaries × ${years} years × ${donors} donor(s)`;
+        }
+
+        function calcRothImpact() {
+            const amount = getVal('rothConversion');
+            const yourRate = getVal('yourTaxRate') / 100;
+            const heirRate = getVal('heirTaxRate') / 100;
+
+            const taxNow = amount * yourRate;
+            const taxSaved = amount * heirRate;
+            const netBenefit = taxSaved - taxNow;
+
+            document.getElementById('rothTaxNow').textContent = fC(taxNow);
+            document.getElementById('rothTaxSaved').textContent = fC(taxSaved);
+            document.getElementById('rothNetBenefit').textContent = fC(netBenefit);
+            document.getElementById('rothNetBenefit').style.color = netBenefit >= 0 ? 'var(--success)' : 'var(--danger)';
+
+            const badge = document.getElementById('rothBadge');
+            if (yourRate < heirRate) {
+                badge.textContent = 'Strongly Recommended';
+                badge.className = 'scenario-badge';
+            } else if (yourRate === heirRate) {
+                badge.textContent = 'Neutral';
+                badge.className = 'scenario-badge warning';
+            } else {
+                badge.textContent = 'Consider Waiting';
+                badge.className = 'scenario-badge danger';
+            }
+        }
+
+        function generateActions(grossEstate, totalTax, fedExemption, lifeOwnership, lifeIns) {
+            const actions = [];
+
+            if (grossEstate > fedExemption * 0.5) {
+                actions.push({ urgent: true, icon: '⚠️', title: 'Estate exceeds 50% of exemption', desc: 'Consider gifting strategies to reduce taxable estate before potential 2026 sunset.' });
+            }
+
+            if (lifeOwnership === 'personal' && lifeIns > 500000) {
+                actions.push({ urgent: true, icon: '🏛️', title: 'Consider ILIT for life insurance', desc: `Moving ${fC(lifeIns)} policy to ILIT could save ${fC(lifeIns * 0.4)} in estate taxes.` });
+            }
+
+            if (totalTax > 0) {
+                actions.push({ warning: true, icon: '💰', title: 'Estate tax exposure exists', desc: `Current exposure of ${fC(totalTax)}. Review exemption planning opportunities.` });
+            }
+
+            actions.push({ icon: '📋', title: 'Review beneficiary designations', desc: 'Ensure all accounts have current beneficiaries that align with estate plan.' });
+            actions.push({ icon: '📅', title: 'Annual gifting program', desc: 'Consider systematic gifting to reduce estate and use annual exclusion.' });
+            actions.push({ icon: '🔄', title: 'Roth conversion analysis', desc: 'Evaluate converting traditional IRA to Roth to reduce heir tax burden.' });
+
+            const actionHtml = actions.map(a => `
+                <li class="action-item ${a.urgent ? 'urgent' : ''} ${a.warning ? 'warning' : ''}">
+                    <div class="action-icon">${a.icon}</div>
+                    <div class="action-text">
+                        <div class="action-title">${a.title}</div>
+                        <div class="action-desc">${a.desc}</div>
+                    </div>
+                </li>
+            `).join('');
+            document.getElementById('actionList').innerHTML = actionHtml;
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('estateChart');
+            if (!ctx) return;
+
+            const data = [
+                getVal('traditionalBalance'),
+                getVal('rothBalance'),
+                getVal('taxableValue'),
+                getVal('homeValue') + getVal('otherRealEstate'),
+                document.getElementById('lifeOwnership').value === 'personal' ? getVal('lifeInsurance') : 0,
+                getVal('cashAssets') + getVal('businessAssets') + getVal('otherAssets')
+            ];
+
+            if (estateChart) estateChart.destroy();
+
+            estateChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Traditional IRA/401k', 'Roth IRA', 'Taxable Investments', 'Real Estate', 'Life Insurance', 'Other Assets'],
+                    datasets: [{
+                        data: data,
+                        backgroundColor: ['#00205B', '#D4AF37', '#10b981', '#8b5cf6', '#f97316', '#6b7280']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right' },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return context.label + ': ' + fC(context.raw);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize
+        calculate();
+        calculateHeirImpact();
+
+        function calculateHeirImpact() {
+            // Get asset totals
+            const iraTotal = getVal('traditionalIRA') + getVal('traditional401k');
+            const rothTotal = getVal('rothIRA') + getVal('roth401k');
+            const taxableTotal = getVal('taxableInvestments');
+            const reTotal = getVal('primaryResidence') + getVal('otherRealEstate');
+            const lifeTotal = getVal('personalLifeIns');
+
+            // Update allocation table totals
+            document.getElementById('allocIRATotal').textContent = fC(iraTotal);
+            document.getElementById('allocRothTotal').textContent = fC(rothTotal);
+            document.getElementById('allocTaxableTotal').textContent = fC(taxableTotal);
+            document.getElementById('allocRETotal').textContent = fC(reTotal);
+            document.getElementById('allocLifeTotal').textContent = fC(lifeTotal);
+
+            // Update beneficiary names in headers
+            for (let i = 1; i <= 4; i++) {
+                const name = document.getElementById('ben' + i + 'Name').value || 'Beneficiary ' + i;
+                document.getElementById('allocHeader' + i).textContent = name;
+                document.getElementById('taxRateLabel' + i).textContent = name + ' Tax Rate';
+            }
+
+            // Get allocation percentages
+            const allocs = {
+                ira: [getVal('allocIRA1'), getVal('allocIRA2'), getVal('allocIRA3'), getVal('allocIRA4')],
+                roth: [getVal('allocRoth1'), getVal('allocRoth2'), getVal('allocRoth3'), getVal('allocRoth4')],
+                taxable: [getVal('allocTaxable1'), getVal('allocTaxable2'), getVal('allocTaxable3'), getVal('allocTaxable4')],
+                re: [getVal('allocRE1'), getVal('allocRE2'), getVal('allocRE3'), getVal('allocRE4')],
+                life: [getVal('allocLife1'), getVal('allocLife2'), getVal('allocLife3'), getVal('allocLife4')]
+            };
+
+            // Get heir tax rates
+            const taxRates = [
+                getVal('heirTaxRate1') / 100,
+                getVal('heirTaxRate2') / 100,
+                getVal('heirTaxRate3') / 100,
+                0 // Charity is tax-exempt
+            ];
+
+            const totalEstate = iraTotal + rothTotal + taxableTotal + reTotal + lifeTotal;
+
+            // Calculate Scenario A: Pro-rata distribution
+            const benPcts = [
+                getVal('ben1Pct') / 100,
+                getVal('ben2Pct') / 100,
+                getVal('ben3Pct') / 100,
+                getVal('ben4Pct') / 100
+            ];
+
+            let scenarioA = [];
+            let scenarioATotalGross = 0, scenarioATotalTax = 0;
+
+            for (let i = 0; i < 4; i++) {
+                const name = document.getElementById('ben' + (i + 1) + 'Name').value || 'Beneficiary ' + (i + 1);
+                const gross = totalEstate * benPcts[i];
+                // Pro-rata means same % of each asset type
+                const iraShare = iraTotal * benPcts[i];
+                const rothShare = rothTotal * benPcts[i];
+                const taxableShare = taxableTotal * benPcts[i];
+                const reShare = reTotal * benPcts[i];
+                const lifeShare = lifeTotal * benPcts[i];
+
+                // Tax: IRA is fully taxable, others get step-up or are tax-free
+                const tax = iraShare * taxRates[i];
+                const net = gross - tax;
+
+                scenarioA.push({ name, gross, tax, net });
+                scenarioATotalGross += gross;
+                scenarioATotalTax += tax;
+            }
+
+            // Calculate Scenario B: Optimized distribution based on allocations
+            let scenarioB = [];
+            let scenarioBTotalGross = 0, scenarioBTotalTax = 0;
+
+            for (let i = 0; i < 4; i++) {
+                const name = document.getElementById('ben' + (i + 1) + 'Name').value || 'Beneficiary ' + (i + 1);
+                const iraShare = iraTotal * allocs.ira[i] / 100;
+                const rothShare = rothTotal * allocs.roth[i] / 100;
+                const taxableShare = taxableTotal * allocs.taxable[i] / 100;
+                const reShare = reTotal * allocs.re[i] / 100;
+                const lifeShare = lifeTotal * allocs.life[i] / 100;
+
+                const gross = iraShare + rothShare + taxableShare + reShare + lifeShare;
+                const tax = iraShare * taxRates[i]; // Only IRA is taxable
+                const net = gross - tax;
+
+                scenarioB.push({ name, gross, tax, net });
+                scenarioBTotalGross += gross;
+                scenarioBTotalTax += tax;
+            }
+
+            // Render Scenario A table
+            document.getElementById('scenarioATable').innerHTML = scenarioA.map(b => `
+                <tr>
+                    <td>${b.name}</td>
+                    <td class="money">${fC(b.gross)}</td>
+                    <td class="money negative">${fC(b.tax)}</td>
+                    <td class="money">${fC(b.net)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('scenarioAGross').textContent = fC(scenarioATotalGross);
+            document.getElementById('scenarioATax').textContent = fC(scenarioATotalTax);
+            document.getElementById('scenarioANet').textContent = fC(scenarioATotalGross - scenarioATotalTax);
+
+            // Render Scenario B table
+            document.getElementById('scenarioBTable').innerHTML = scenarioB.map(b => `
+                <tr>
+                    <td>${b.name}</td>
+                    <td class="money">${fC(b.gross)}</td>
+                    <td class="money negative">${fC(b.tax)}</td>
+                    <td class="money">${fC(b.net)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('scenarioBGross').textContent = fC(scenarioBTotalGross);
+            document.getElementById('scenarioBTax').textContent = fC(scenarioBTotalTax);
+            document.getElementById('scenarioBNet').textContent = fC(scenarioBTotalGross - scenarioBTotalTax);
+
+            // Calculate savings
+            const taxSavings = scenarioATotalTax - scenarioBTotalTax;
+            document.getElementById('taxSavings').textContent = fC(Math.max(0, taxSavings));
+            document.getElementById('additionalToHeirs').textContent = fC(Math.max(0, taxSavings));
+
+            // Update tax comparison bar
+            const maxTax = Math.max(scenarioATotalTax, scenarioBTotalTax, 1);
+            document.getElementById('taxBarA').style.width = (scenarioATotalTax / maxTax * 50) + '%';
+            document.getElementById('taxBarB').style.width = (scenarioBTotalTax / maxTax * 50) + '%';
+
+            // Generate recommendations
+            generateOptimizationRecs(iraTotal, rothTotal, taxableTotal, taxRates, allocs, taxSavings);
+        }
+
+        function generateOptimizationRecs(iraTotal, rothTotal, taxableTotal, taxRates, allocs, taxSavings) {
+            const recs = [];
+
+            // Find highest and lowest tax rate beneficiaries (excluding charity)
+            let highTaxIdx = -1, lowTaxIdx = -1;
+            let highRate = -1, lowRate = 999;
+            for (let i = 0; i < 3; i++) {
+                if (taxRates[i] > highRate) { highRate = taxRates[i]; highTaxIdx = i; }
+                if (taxRates[i] < lowRate && taxRates[i] > 0) { lowRate = taxRates[i]; lowTaxIdx = i; }
+            }
+
+            const highName = document.getElementById('ben' + (highTaxIdx + 1) + 'Name').value || 'Beneficiary ' + (highTaxIdx + 1);
+            const lowName = lowTaxIdx >= 0 ? (document.getElementById('ben' + (lowTaxIdx + 1) + 'Name').value || 'Beneficiary ' + (lowTaxIdx + 1)) : '';
+
+            // Recommendation: Give IRA to lowest tax bracket heir
+            if (iraTotal > 0 && lowTaxIdx >= 0 && allocs.ira[lowTaxIdx] < 100) {
+                recs.push({
+                    icon: '💡',
+                    title: 'Allocate Traditional IRA to Lower-Bracket Heir',
+                    desc: `Consider leaving more of the Traditional IRA/401k to ${lowName} (${(lowRate * 100).toFixed(0)}% bracket) instead of ${highName} (${(highRate * 100).toFixed(0)}% bracket) to reduce taxes on required distributions.`,
+                    impact: 'high'
+                });
+            }
+
+            // Recommendation: Give Roth to highest bracket heir
+            if (rothTotal > 0 && highTaxIdx >= 0 && allocs.roth[highTaxIdx] < 100) {
+                recs.push({
+                    icon: '⭐',
+                    title: 'Allocate Roth Assets to Higher-Bracket Heir',
+                    desc: `${highName} is in the ${(highRate * 100).toFixed(0)}% bracket. Roth assets pass tax-free, so they benefit most from receiving Roth accounts.`,
+                    impact: 'high'
+                });
+            }
+
+            // Recommendation: Charity gets IRA
+            if (iraTotal > 0 && allocs.ira[3] === 0) {
+                recs.push({
+                    icon: '❤️',
+                    title: 'Consider IRA-to-Charity Strategy',
+                    desc: 'If you have charitable goals, leaving IRA assets to charity is highly tax-efficient. Charities pay no income tax on IRA distributions.',
+                    impact: 'medium'
+                });
+            }
+
+            // Recommendation: Step-up assets to high earners
+            if (taxableTotal > 0 && allocs.taxable[highTaxIdx] < 50) {
+                recs.push({
+                    icon: '📈',
+                    title: 'Step-Up Basis Assets for High Earners',
+                    desc: `Taxable investments receive a step-up in basis at death, eliminating capital gains tax. ${highName} could benefit from receiving these instead of IRA assets.`,
+                    impact: 'medium'
+                });
+            }
+
+            // Show tax savings achieved
+            if (taxSavings > 1000) {
+                recs.unshift({
+                    icon: '✅',
+                    title: 'Tax-Optimized Allocation Saves ' + fC(taxSavings),
+                    desc: 'Your current optimized allocation in Scenario B saves significantly on heir income taxes compared to a simple pro-rata distribution.',
+                    impact: 'success'
+                });
+            }
+
+            if (recs.length === 0) {
+                recs.push({
+                    icon: '✓',
+                    title: 'Allocation Looks Good',
+                    desc: 'Your current beneficiary allocations appear to be tax-efficient based on the heir tax rates provided.',
+                    impact: 'success'
+                });
+            }
+
+            document.getElementById('optimizationRecs').innerHTML = recs.map(r => `
+                <div style="display:flex;gap:12px;padding:12px;background:${r.impact === 'success' ? '#ecfdf5' : r.impact === 'high' ? '#fef3c7' : 'var(--brand-light)'};border-radius:8px;border-left:4px solid ${r.impact === 'success' ? 'var(--success)' : r.impact === 'high' ? 'var(--warning)' : 'var(--brand-gold)'};">
+                    <div style="font-size:20px;">${r.icon}</div>
+                    <div>
+                        <div style="font-weight:600;color:var(--brand-navy);margin-bottom:4px;">${r.title}</div>
+                        <div style="font-size:12px;color:var(--text-secondary);">${r.desc}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Profile Sync with GlobalStateManager
+        function loadFromProfile() {
+            if (typeof GlobalStateManager === 'undefined') return;
+            const state = GlobalStateManager.getState();
+
+            // Spouse as first beneficiary
+            if (state.client2?.name) document.getElementById('ben1Name').value = state.client2.name;
+            if (state.client2?.age) document.getElementById('ben1Age').value = state.client2.age;
+
+            // Portfolio balances for estate calculations
+            if (state.portfolio?.preTax) document.getElementById('traditionalBalance').value = state.portfolio.preTax;
+            if (state.portfolio?.roth) document.getElementById('rothBalance').value = state.portfolio.roth;
+            if (state.portfolio?.taxable) document.getElementById('taxableValue').value = state.portfolio.taxable;
+        }
+
+        if (typeof GlobalStateManager !== 'undefined') {
+            GlobalStateManager.init();
+            loadFromProfile();
+
+            GlobalStateManager.subscribe(function (state) {
+                loadFromProfile();
+                calculate();
+                calculateHeirImpact();
+            });
+        }
+    </script>
+</body>
+
+</html>
