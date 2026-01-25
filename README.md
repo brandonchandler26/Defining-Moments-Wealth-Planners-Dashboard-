@@ -88,5 +88,5 @@ All data entered into the dashboard is stored **locally** in your browser's `loc
 
 ---
 
-**Built with ❤️ for financial advisors who want to deliver exceptional client experiences.**
+
 
