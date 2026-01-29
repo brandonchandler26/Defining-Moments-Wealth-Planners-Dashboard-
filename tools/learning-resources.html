@@ -1,0 +1,1933 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Resources | Defining Moments Wealth Planners</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --brand-navy: #00205B;
+            --brand-navy-light: #003380;
+            --brand-gold: #D4AF37;
+            --brand-gold-hover: #B5952F;
+            --brand-light: #F9F9F7;
+            --brand-white: #FFFFFF;
+            --text-primary: #1a1a2e;
+            --text-secondary: #4a5568;
+            --text-muted: #718096;
+            --border: #E2E8F0;
+            --success: #10b981;
+            --radius: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--brand-light);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--brand-light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--brand-gold);
+            border-radius: 5px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 32px 40px;
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 24px;
+            border-bottom: 3px solid var(--brand-gold);
+        }
+
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--brand-navy);
+            margin-bottom: 8px;
+        }
+
+        .page-header p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Category Sections */
+        .category-section {
+            margin-bottom: 40px;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .category-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--brand-navy);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .category-icon svg {
+            width: 24px;
+            height: 24px;
+            color: var(--brand-gold);
+        }
+
+        .category-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--brand-navy);
+        }
+
+        /* Resource Cards */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
+        }
+
+        .resource-card {
+            background: var(--brand-white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 2px solid var(--border);
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .resource-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--brand-gold);
+            transform: translateY(-2px);
+        }
+
+        .resource-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--brand-navy);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .resource-card h3 .badge {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: var(--brand-light);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+
+        .resource-card h3 .badge.official {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-color: var(--success);
+        }
+
+        .resource-card h3 .badge.rbc {
+            background: rgba(0, 32, 91, 0.1);
+            color: var(--brand-navy);
+            border-color: var(--brand-navy);
+        }
+
+        .resource-card h3 .badge.union {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--brand-gold-hover);
+            border-color: var(--brand-gold);
+        }
+
+        .resource-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            flex: 1;
+            line-height: 1.6;
+        }
+
+        .resource-card .meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+
+        .resource-card .verified {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .resource-card .link-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--brand-navy);
+            text-decoration: none;
+            padding: 8px 14px;
+            background: var(--brand-light);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .resource-card .link-btn:hover {
+            background: var(--brand-navy);
+            border-color: var(--brand-navy);
+            color: var(--brand-white);
+        }
+
+        .resource-card .link-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .resource-card .button-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .resource-card .meta.multi-btn {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .resource-card .meta.multi-btn .button-group {
+            width: 100%;
+            justify-content: flex-end;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px;
+            }
+
+            .resources-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page-header h1 {
+                font-size: 24px;
+            }
+        }
+
+        /* Search Box */
+        .search-container {
+            margin-bottom: 32px;
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            font-size: 15px;
+            font-family: 'DM Sans', sans-serif;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            background: var(--brand-white);
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--brand-navy);
+            box-shadow: 0 0 0 3px rgba(0, 32, 91, 0.1);
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .search-results-count {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .resource-card.hidden {
+            display: none;
+        }
+
+        .category-section.hidden {
+            display: none;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 6px;
+            padding: 8px;
+            background: #fafafa;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .drop-zone.dragover {
+            border-color: var(--brand-gold);
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .drop-zone input {
+            width: 100%;
+            margin-bottom: 4px;
+        }
+
+        .drop-zone-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--brand-white);
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--brand-navy);
+            margin: 0;
+        }
+
+        .modal-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            background: #f8fafc;
+            border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--brand-navy);
+            text-transform: uppercase;
+        }
+
+        .form-control {
+            padding: 10px 12px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--brand-gold);
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 16px;
+            margin-top: 4px;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--brand-navy);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--brand-navy-light);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 2px solid var(--border);
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-muted);
+            color: var(--text-primary);
+        }
+
+        .btn-gold {
+            background: var(--brand-gold);
+            color: var(--brand-navy);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn-gold:hover {
+            background: var(--brand-gold-hover);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="page-header">
+            <div
+                style="display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 8px; position: relative;">
+                <h1 style="margin-bottom: 0;">Learning Resources</h1>
+                <button onclick="openAddResourceModal()" class="btn-gold"
+                    style="position: absolute; right: 0; top: 50%; transform: translateY(-50%);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Add Resource
+                </button>
+            </div>
+            <p>Authoritative sources and references used in our planning calculations. All tools are built on official
+                IRS publications, SSA guidelines, and industry resources.</p>
+        </header>
+
+        <!-- Search Box -->
+        <div class="search-container">
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="M21 21l-4.35-4.35" />
+                </svg>
+                <input type="text" id="searchInput" placeholder="Search resources...">
+            </div>
+            <div class="search-results-count" id="searchResultsCount"></div>
+        </div>
+
+        <!-- IRS Resources -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M9 7h6M9 11h6M9 15h4M4 4h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z" />
+                    </svg>
+                </div>
+                <h2>IRS Resources</h2>
+            </div>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h3>IRS Tax Withholding Estimator <span class="badge official">IRS</span></h3>
+                    <p>Official IRS tool to check withholding and calculate adjustments needed on Form W-4. Great for
+                        clients with life changes.</p>
+                    <div class="meta">
+                        <span class="verified">Official Tool</span>
+                        <a href="https://apps.irs.gov/app/tax-withholding-estimator" target="_blank" class="link-btn">
+                            Open Estimator
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Publication 15-T (Payroll) <span class="badge official">IRS</span></h3>
+                    <p>Federal Income Tax Withholding Methods. Contains percentage method tables, wage bracket tables,
+                        and computational procedures for payroll calculations.</p>
+                    <div class="meta">
+                        <span class="verified">2026 Edition</span>
+                        <a href="https://www.irs.gov/pub/irs-pdf/p15t.pdf" target="_blank" class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Publication 590-B (Distributions) <span class="badge official">IRS</span></h3>
+                    <p>Distributions from Individual Retirement Arrangements. Comprehensive guide covering RMDs,
+                        early withdrawal penalties, and distribution rules.</p>
+                    <div class="meta">
+                        <span class="verified">Current Edition</span>
+                        <a href="https://www.irs.gov/publications/p590b" target="_blank" class="link-btn">
+                            View Publication
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Uniform Lifetime Table <span class="badge official">IRS</span></h3>
+                    <p>IRS Uniform Lifetime Table for calculating required minimum distributions from traditional IRAs
+                        and employer plans.</p>
+                    <div class="meta">
+                        <span class="verified">2025 Tables</span>
+                        <a href="https://www.irs.gov/publications/p590b#en_US_2025_publink100090310" target="_blank"
+                            class="link-btn">
+                            View Table
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Joint Life Expectancy Table <span class="badge official">IRS</span></h3>
+                    <p>Joint Life Expectancy Table for account owners with spouses more than 10 years younger as sole
+                        beneficiary.</p>
+                    <div class="meta">
+                        <span class="verified">2025 Tables</span>
+                        <a href="https://www.irs.gov/publications/p590b#en_US_2025_publink100090290" target="_blank"
+                            class="link-btn">
+                            View Table
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Tax Brackets & Rates <span class="badge official">IRS</span></h3>
+                    <p>Official federal income tax brackets for all filing statuses. Updated annually for inflation
+                        adjustments.</p>
+                    <div class="meta">
+                        <span class="verified">2026 Tax Year</span>
+                        <a href="https://www.irs.gov/filing/federal-income-tax-rates-and-brackets" target="_blank"
+                            class="link-btn">
+                            View Source
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>OBBBA Provisions <span class="badge official">IRS</span></h3>
+                    <p>One Big Beautiful Bill Act tax provisions. Overview of new tax law changes affecting individuals,
+                        businesses, and retirement planning.</p>
+                    <div class="meta">
+                        <span class="verified">Current Law</span>
+                        <a href="https://www.irs.gov/newsroom/one-big-beautiful-bill-provisions" target="_blank"
+                            class="link-btn">
+                            View Provisions
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Standard Deduction Amounts <span class="badge official">IRS</span></h3>
+                    <p>Current standard deduction amounts by filing status, including additional deductions for age 65+
+                        and blind taxpayers.</p>
+                    <div class="meta">
+                        <span class="verified">2026 Tax Year</span>
+                        <a href="https://www.irs.gov/taxtopics/tc551" target="_blank" class="link-btn">
+                            View Source
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Taxation of Social Security <span class="badge official">IRS</span></h3>
+                    <p>IRS guidance on when Social Security benefits become taxable and how to calculate the taxable
+                        portion.</p>
+                    <div class="meta">
+                        <span class="verified">Current Rules</span>
+                        <a href="https://www.irs.gov/taxtopics/tc423" target="_blank" class="link-btn">
+                            View Rules
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>401(k) / 403(b) / 457 Limits <span class="badge official">IRS</span></h3>
+                    <p>Annual contribution limits for employer-sponsored retirement plans, including catch-up
+                        contributions for ages 50+ and 60-63.</p>
+                    <div class="meta">
+                        <span class="verified">2026 Limits</span>
+                        <a href="https://www.irs.gov/retirement-plans/plan-participant-employee/retirement-topics-401k-and-profit-sharing-plan-contribution-limits"
+                            target="_blank" class="link-btn">
+                            View Limits
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="resource-card">
+                    <h3>Inherited IRA / 10-Year Rule <span class="badge">Kitces</span></h3>
+                    <p>Comprehensive guide to SECURE 2.0 RMD regulations including the 10-year rule for non-eligible
+                        designated beneficiaries, trust rules, and successor beneficiary requirements.</p>
+                    <div class="meta multi-btn">
+                        <span class="verified">July 2024 Final Regs</span>
+                        <div class="button-group">
+                            <a href="https://www.kitces.com/blog/secure-act-2-0-irs-regulations-rmd-required-minimum-distributions-10-year-rule-eligible-designated-beneficiary-see-through-conduit-trust/"
+                                target="_blank" class="link-btn">
+                                Read Article
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path
+                                        d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                                </svg>
+                            </a>
+                            <a href="RMD guidelines for inherited IRAs.pdf" target="_blank" class="link-btn">
+                                View PDF
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                    <line x1="16" y1="13" x2="8" y2="13" />
+                                    <line x1="16" y1="17" x2="8" y2="17" />
+                                    <polyline points="10 9 9 9 8 9" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Social Security Administration -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                </div>
+                <h2>Social Security Administration</h2>
+            </div>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h3>SSA Benefit Estimator <span class="badge official">SSA</span></h3>
+                    <p>Get an estimate of your Social Security retirement, disability, and survivor benefits based on
+                        your actual earnings record.</p>
+                    <div class="meta">
+                        <span class="verified">Official Tool</span>
+                        <a href="https://www.ssa.gov/prepare/get-benefits-estimate" target="_blank" class="link-btn">
+                            Get Estimate
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>All SSA Calculators <span class="badge official">SSA</span></h3>
+                    <p>Complete collection of Social Security calculators including retirement, disability, survivors,
+                        and Medicare eligibility.</p>
+                    <div class="meta">
+                        <span class="verified">Official Tools</span>
+                        <a href="https://www.ssa.gov/benefits/calculators/" target="_blank" class="link-btn">
+                            View All
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Spousal Benefits Calculator <span class="badge official">SSA</span></h3>
+                    <p>Calculate spousal Social Security benefits based on your spouse's earnings record and
+                        claiming ages.</p>
+                    <div class="meta">
+                        <span class="verified">Official Tool</span>
+                        <a href="https://www.ssa.gov/oact/quickcalc/spouse.html" target="_blank" class="link-btn">
+                            Open Calculator
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Survivor Benefits <span class="badge official">SSA</span></h3>
+                    <p>Information about Social Security survivor benefits for widows, widowers, and dependent
+                        children.</p>
+                    <div class="meta">
+                        <span class="verified">Official Source</span>
+                        <a href="https://www.ssa.gov/survivor" target="_blank" class="link-btn">
+                            Learn More
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Disability Benefits <span class="badge official">SSA</span></h3>
+                    <p>Social Security Disability Insurance (SSDI) eligibility, application process, and benefit
+                        information.</p>
+                    <div class="meta">
+                        <span class="verified">Official Source</span>
+                        <a href="https://www.ssa.gov/disability" target="_blank" class="link-btn">
+                            Learn More
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Benefits While Working <span class="badge official">SSA</span></h3>
+                    <p>Rules for receiving Social Security benefits while still working, including annual exempt
+                        amounts and benefit reduction calculations.</p>
+                    <div class="meta">
+                        <span class="verified">2026 Limits</span>
+                        <a href="https://www.ssa.gov/benefits/retirement/planner/whileworking.html" target="_blank"
+                            class="link-btn">
+                            View Rules
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Full Retirement Age Chart <span class="badge official">SSA</span></h3>
+                    <p>Reference chart showing full retirement age by birth year, early retirement reductions, and
+                        delayed retirement credits.</p>
+                    <div class="meta">
+                        <span class="verified">Official Source</span>
+                        <a href="https://www.ssa.gov/benefits/retirement/planner/agereduction.html" target="_blank"
+                            class="link-btn">
+                            View Chart
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>FICA & Wage Base Limits <span class="badge official">SSA</span></h3>
+                    <p>Social Security wage base, FICA tax rates, and self-employment tax information. Critical for
+                        payroll calculations.</p>
+                    <div class="meta">
+                        <span class="verified">2026 Limits</span>
+                        <a href="https://www.ssa.gov/oact/cola/cbb.html" target="_blank" class="link-btn">
+                            View Limits
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>COLA History <span class="badge official">SSA</span></h3>
+                    <p>Historical cost-of-living adjustments for Social Security benefits. Useful for projecting future
+                        benefit increases.</p>
+                    <div class="meta">
+                        <span class="verified">Updated Annually</span>
+                        <a href="https://www.ssa.gov/oact/cola/colaseries.html" target="_blank" class="link-btn">
+                            View History
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Medicare -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                    </svg>
+                </div>
+                <h2>Medicare</h2>
+            </div>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h3>2026 IRMAA Brackets <span class="badge official">CMS</span></h3>
+                    <p>Official 2026 Medicare Parts A & B premiums, deductibles, and Income-Related Monthly Adjustment
+                        Amount (IRMAA) brackets from CMS.</p>
+                    <div class="meta">
+                        <span class="verified">2026 Official</span>
+                        <a href="https://www.cms.gov/newsroom/fact-sheets/2026-medicare-parts-b-premiums-deductibles"
+                            target="_blank" class="link-btn">
+                            View Fact Sheet
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Part B & Part D Premiums <span class="badge official">Medicare</span></h3>
+                    <p>Standard monthly premiums for Medicare Part B and Part D, plus IRMAA surcharges by income tier.
+                    </p>
+                    <div class="meta">
+                        <span class="verified">2026 Premiums</span>
+                        <a href="https://www.medicare.gov/basics/costs/medicare-costs" target="_blank" class="link-btn">
+                            View Costs
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Enrollment Periods <span class="badge official">Medicare</span></h3>
+                    <p>Initial enrollment, general enrollment, and special enrollment period rules. Critical for
+                        avoiding late enrollment penalties.</p>
+                    <div class="meta">
+                        <span class="verified">Current Rules</span>
+                        <a href="https://www.medicare.gov/basics/get-started-with-medicare/sign-up/when-does-medicare-coverage-start"
+                            target="_blank" class="link-btn">
+                            View Periods
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Plumbers Local 8 -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                </div>
+                <h2>Plumbers Local 8</h2>
+            </div>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h3>Local 8 Website <span class="badge union">Local 8</span></h3>
+                    <p>Official website for Plumbers Local 8. Access benefit summaries, pension information, and member
+                        resources.</p>
+                    <div class="meta">
+                        <span class="verified">Member Resource</span>
+                        <a href="https://www.plumberslu8.org/" target="_blank" class="link-btn">
+                            Visit Site
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>DC Election - Journeyman & MES <span class="badge union">Local 8</span></h3>
+                    <p>Defined Contribution election form for Journeyman and MES members. Update your contribution
+                        elections online.</p>
+                    <div class="meta">
+                        <span class="verified">Member Form</span>
+                        <a href="https://plumberslocal8.com/members/defined-contribution-election-form/" target="_blank"
+                            class="link-btn">
+                            Open Form
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>DC Election - Apprentices <span class="badge union">Local 8</span></h3>
+                    <p>Defined Contribution election form for 2nd-5th year apprentices. Update your contribution
+                        elections online.</p>
+                    <div class="meta">
+                        <span class="verified">Member Form</span>
+                        <a href="https://plumberslocal8.com/members/defined-contribution-election-form-apprentice/"
+                            target="_blank" class="link-btn">
+                            Open Form
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Principal (401k Access) <span class="badge union">Local 8</span></h3>
+                    <p>Principal Financial account login for Local 8 members to access retirement plan balances,
+                        investments, and statements.</p>
+                    <div class="meta">
+                        <span class="verified">Account Login</span>
+                        <a href="https://accounts.principal.com/app/bookmark/0oadm2qe1orihoKba5d7/login" target="_blank"
+                            class="link-btn">
+                            Login
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Pension Estimator Tool <span class="badge union">Local 8</span></h3>
+                    <p>Online pension estimator for UA Local 8 members. Calculate projected pension benefits based on
+                        years of service and contribution history.</p>
+                    <div class="meta">
+                        <span class="verified">Member Tool</span>
+                        <a href="https://kmrapplications.com/pr/ua8/app/login/php?path=2" target="_blank"
+                            class="link-btn">
+                            Open Estimator
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pipefitters Local 533 -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                </div>
+                <h2>Pipefitters Local 533</h2>
+            </div>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h3>Local 533 Website <span class="badge union">Local 533</span></h3>
+                    <p>Official website for Pipefitters Local 533. Access benefit summaries, pension information, and
+                        member resources.</p>
+                    <div class="meta">
+                        <span class="verified">Member Resource</span>
+                        <a href="https://www.pipefitters533.org/" target="_blank" class="link-btn">
+                            Visit Site
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Solxsys 365 Portal <span class="badge union">Local 533</span></h3>
+                    <p>Solxsys 365 member portal for Local 533 members. Access benefit information and member
+                        services.</p>
+                    <div class="meta">
+                        <span class="verified">Account Login</span>
+                        <a href="https://www.solxsys365.com/Account/Login" target="_blank" class="link-btn">
+                            Login
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Transamerica (401k Access) <span class="badge union">Local 533</span></h3>
+                    <p>Transamerica account login for Local 533 members to access retirement plan balances,
+                        investments, and statements.</p>
+                    <div class="meta">
+                        <span class="verified">Account Login</span>
+                        <a href="https://secure2.transamerica.com" target="_blank" class="link-btn">
+                            Login
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- UA National Pension Fund -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 3v18h18" />
+                        <path d="M18 9l-5 5-4-4-3 3" />
+                    </svg>
+                </div>
+                <h2>UA National Pension Fund</h2>
+            </div>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h3>UA Pension Fund Website <span class="badge union">UA</span></h3>
+                    <p>United Association National Pension Fund website. Access pension benefit information, forms,
+                        and contact details for all UA members.</p>
+                    <div class="meta">
+                        <span class="verified">Official Source</span>
+                        <a href="https://uanpf.org/" target="_blank" class="link-btn">
+                            Visit Site
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>PBGC Pension Search <span class="badge official">PBGC</span></h3>
+                    <p>Search for unclaimed pension benefits. Useful for clients who may have lost track of old employer
+                        pensions.</p>
+                    <div class="meta">
+                        <span class="verified">Official Tool</span>
+                        <a href="https://www.pbgc.gov/search-unclaimed-pensions" target="_blank" class="link-btn">
+                            Search Tool
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- State Tax Resources -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                    </svg>
+                </div>
+                <h2>State Tax Resources</h2>
+            </div>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h3>Missouri Income Tax <span class="badge">State</span></h3>
+                    <p>Missouri Department of Revenue tax tables, withholding guides, and state-specific deduction
+                        information.</p>
+                    <div class="meta">
+                        <span class="verified">2026 Tax Year</span>
+                        <a href="https://dor.mo.gov/taxation/individual/tax-types/income/" target="_blank"
+                            class="link-btn">
+                            View Source
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Kansas Income Tax <span class="badge">State</span></h3>
+                    <p>Kansas Department of Revenue withholding tables and individual income tax information.</p>
+                    <div class="meta">
+                        <span class="verified">2026 Tax Year</span>
+                        <a href="https://www.ksrevenue.gov/perstaxtypes.html" target="_blank" class="link-btn">
+                            View Source
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Employer & Payroll Tools -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                    </svg>
+                </div>
+                <h2>Employer & Payroll Tools</h2>
+            </div>
+            <div class="resources-grid">
+                <div class="resource-card">
+                    <h3>ADP Tools & Resources <span class="badge">ADP</span></h3>
+                    <p>ADP's collection of calculators, compliance tools, and HR resources including payroll
+                        calculators,
+                        tax withholding estimators, and benefits administration tools.</p>
+                    <div class="meta">
+                        <span class="verified">Employer Resource</span>
+                        <a href="https://www.adp.com/resources/tools.aspx" target="_blank" class="link-btn">
+                            View Tools
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RBC Fact Sheets -->
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="4" y="2" width="16" height="20" rx="2" />
+                        <line x1="8" y1="6" x2="16" y2="6" />
+                        <line x1="8" y1="10" x2="16" y2="10" />
+                        <line x1="8" y1="14" x2="16" y2="14" />
+                        <line x1="8" y1="18" x2="12" y2="18" />
+                    </svg>
+                </div>
+                <h2>RBC Fact Sheets</h2>
+            </div>
+            <div class="resources-grid">
+                <!-- Quick Reference -->
+                <div class="resource-card">
+                    <h3>2026 Key Numbers <span class="badge rbc">RBC</span></h3>
+                    <p>Comprehensive quick-reference guide covering tax brackets, retirement contribution limits, Social
+                        Security thresholds, and Medicare premiums for 2026.</p>
+                    <div class="meta">
+                        <span class="verified">Updated Jan 2026</span>
+                        <a href="RBC Fact Sheets/2026 key numbers.pdf" target="_blank" class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Year-End Checklist <span class="badge rbc">RBC</span></h3>
+                    <p>Annual year-end financial planning checklist covering tax optimization, retirement contributions,
+                        charitable giving, and portfolio rebalancing strategies.</p>
+                    <div class="meta">
+                        <span class="verified">Planning Guide</span>
+                        <a href="RBC Fact Sheets/Year-end checklist.PDF" target="_blank" class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Retirement Planning -->
+                <div class="resource-card">
+                    <h3>Social Security Fundamentals <span class="badge rbc">RBC</span></h3>
+                    <p>Essential guide to Social Security benefits including eligibility, claiming strategies, spousal
+                        benefits,
+                        and how benefits are calculated.</p>
+                    <div class="meta">
+                        <span class="verified">Retirement</span>
+                        <a href="RBC Fact Sheets/Social Security fundamentals.PDF" target="_blank" class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Retirement Paycheck Insights <span class="badge rbc">RBC</span></h3>
+                    <p>Strategies for creating a sustainable retirement income stream, including withdrawal sequencing,
+                        tax-efficient distribution planning, and income replacement analysis.</p>
+                    <div class="meta">
+                        <span class="verified">Retirement</span>
+                        <a href="RBC Fact Sheets/RBC Retirement Paycheck Wealth Insights.PDF" target="_blank"
+                            class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Sustainable Withdrawal Rates <span class="badge rbc">RBC</span></h3>
+                    <p>Research-based guidance on safe withdrawal rates in retirement, including the 4% rule,
+                        dynamic withdrawal strategies, and longevity considerations.</p>
+                    <div class="meta">
+                        <span class="verified">Retirement</span>
+                        <a href="RBC Fact Sheets/Sustainable withdrawal rates in retirement.PDF" target="_blank"
+                            class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Why Participate in Your 401(k) <span class="badge rbc">RBC</span></h3>
+                    <p>Overview of 401(k) plan benefits including tax advantages, employer matching, compound growth,
+                        and the importance of early participation.</p>
+                    <div class="meta">
+                        <span class="verified">Retirement</span>
+                        <a href="RBC Fact Sheets/Why participate in your 401(k) plan.PDF" target="_blank"
+                            class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- IRA Strategies -->
+                <div class="resource-card">
+                    <h3>Converting Traditional to Roth IRA <span class="badge rbc">RBC</span></h3>
+                    <p>Guide to Roth IRA conversions including tax implications, timing strategies, partial conversions,
+                        and long-term benefits of tax-free growth.</p>
+                    <div class="meta">
+                        <span class="verified">IRA Planning</span>
+                        <a href="RBC Fact Sheets/Converting a Traditional IRA to a Roth IRA(1).PDF" target="_blank"
+                            class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Choosing an IRA Beneficiary <span class="badge rbc">RBC</span></h3>
+                    <p>Important considerations for IRA beneficiary designations including primary vs. contingent
+                        beneficiaries,
+                        trust considerations, and SECURE Act implications.</p>
+                    <div class="meta">
+                        <span class="verified">IRA Planning</span>
+                        <a href="RBC Fact Sheets/Choosing an IRA beneficiary.PDF" target="_blank" class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Qualified Charitable Distributions <span class="badge rbc">RBC</span></h3>
+                    <p>How to use QCDs to satisfy RMDs while supporting charities tax-efficiently. Covers eligibility,
+                        limits, and strategies for donors age 70½ and older.</p>
+                    <div class="meta">
+                        <span class="verified">IRA Planning</span>
+                        <a href="RBC Fact Sheets/Qualified Charitable Distributions (2).PDF" target="_blank"
+                            class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Small Business Retirement -->
+                <div class="resource-card">
+                    <h3>SEP IRA <span class="badge rbc">RBC</span></h3>
+                    <p>Simplified Employee Pension IRA overview for self-employed individuals and small business owners.
+                        Covers contribution limits, eligibility, and tax benefits.</p>
+                    <div class="meta">
+                        <span class="verified">Small Business</span>
+                        <a href="RBC Fact Sheets/SEP IRA.pdf" target="_blank" class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>SIMPLE IRA <span class="badge rbc">RBC</span></h3>
+                    <p>Savings Incentive Match Plan for Employees overview. Ideal for small businesses with 100 or fewer
+                        employees seeking an easy-to-administer retirement plan.</p>
+                    <div class="meta">
+                        <span class="verified">Small Business</span>
+                        <a href="RBC Fact Sheets/SIMPLE IRA.pdf" target="_blank" class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Owner-Only 401(k) with Profit Sharing <span class="badge rbc">RBC</span></h3>
+                    <p>Solo 401(k) guide for self-employed individuals with no employees. Maximize retirement savings
+                        with employee and employer contribution components.</p>
+                    <div class="meta">
+                        <span class="verified">Small Business</span>
+                        <a href="RBC Fact Sheets/Owner-only 401(k) with profit sharing plan.PDF" target="_blank"
+                            class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Retirement Plan Start-Up Tax Credit <span class="badge rbc">RBC</span></h3>
+                    <p>Tax credits available to small businesses for starting a qualified retirement plan. Covers
+                        eligibility,
+                        credit amounts, and how to claim the credit.</p>
+                    <div class="meta">
+                        <span class="verified">Small Business</span>
+                        <a href="RBC Fact Sheets/Tax Credit for retirement plan start up.pdf" target="_blank"
+                            class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Estate Planning -->
+                <div class="resource-card">
+                    <h3>Trusts: Estate Planning Tool <span class="badge rbc">RBC</span></h3>
+                    <p>Comprehensive guide to trusts including revocable living trusts, irrevocable trusts, and
+                        specialized
+                        trusts for estate planning and wealth transfer.</p>
+                    <div class="meta">
+                        <span class="verified">Estate Planning</span>
+                        <a href="RBC Fact Sheets/Trusts - The Versatile Estate Planning and Wealth Management Tool.PDF"
+                            target="_blank" class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Estate Planning for Blended Families <span class="badge rbc">RBC</span></h3>
+                    <p>Special considerations for estate planning in blended families including balancing spouse and
+                        children's interests, trusts, and beneficiary designations.</p>
+                    <div class="meta">
+                        <span class="verified">Estate Planning</span>
+                        <a href="RBC Fact Sheets/Estate Planning for Blended Families.PDF" target="_blank"
+                            class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Death of a Family Member Checklist <span class="badge rbc">RBC</span></h3>
+                    <p>Practical checklist for managing financial and administrative tasks after losing a loved one,
+                        including accounts, benefits, and estate procedures.</p>
+                    <div class="meta">
+                        <span class="verified">Estate Planning</span>
+                        <a href="RBC Fact Sheets/Death of a family member checklist.PDF" target="_blank"
+                            class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Gifting Appreciated Stock to Family <span class="badge rbc">RBC</span></h3>
+                    <p>Tax-efficient strategies for gifting appreciated securities to family members, including cost
+                        basis
+                        rules, gift tax considerations, and timing strategies.</p>
+                    <div class="meta">
+                        <span class="verified">Estate Planning</span>
+                        <a href="RBC Fact Sheets/Gifting appreciated stock to family.PDF" target="_blank"
+                            class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Education & Savings -->
+                <div class="resource-card">
+                    <h3>Section 529 Education Savings Plans <span class="badge rbc">RBC</span></h3>
+                    <p>Guide to 529 college savings plans including tax benefits, contribution limits, qualified
+                        expenses,
+                        and strategies for maximizing education savings.</p>
+                    <div class="meta">
+                        <span class="verified">Education</span>
+                        <a href="RBC Fact Sheets/2919-section-529-education-savings-plans.pdf" target="_blank"
+                            class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>UTMA Custodial Accounts <span class="badge rbc">RBC</span></h3>
+                    <p>Uniform Transfers to Minors Act accounts for gifting assets to children. Covers control,
+                        taxation,
+                        and comparison with other savings vehicles.</p>
+                    <div class="meta">
+                        <span class="verified">Education</span>
+                        <a href="RBC Fact Sheets/UTMA.pdf" target="_blank" class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Business Valuation -->
+                <div class="resource-card">
+                    <h3>Top 10 Reasons for Business Valuation <span class="badge rbc">RBC</span></h3>
+                    <p>Key reasons business owners should obtain a professional valuation, from succession planning
+                        and M&A to estate planning and partner buyouts.</p>
+                    <div class="meta">
+                        <span class="verified">Business</span>
+                        <a href="RBC Fact Sheets/Top 10 reasons for business valuation.PDF" target="_blank"
+                            class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="resource-card">
+                    <h3>Business Valuation Fact Finder <span class="badge rbc">RBC</span></h3>
+                    <p>BizEquity collaboration tool for gathering information needed for business valuations.
+                        Helps prepare for professional valuation discussions.</p>
+                    <div class="meta">
+                        <span class="verified">Business</span>
+                        <a href="RBC Fact Sheets/Valuation fact finder - In collaboration with BizEquity.PDF"
+                            target="_blank" class="link-btn">
+                            View PDF
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path
+                                    d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Add Resource Modal -->
+    <div id="add-resource-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>➕ Add New Resource</h2>
+                <button onclick="closeAddResourceModal()"
+                    style="background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="ar-category" class="form-control" onchange="toggleNewCategoryInput()">
+                        <!-- Computed JS -->
+                    </select>
+                    <input id="ar-new-category" class="form-control" placeholder="Enter new category name"
+                        style="display: none; margin-top: 8px;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input id="ar-title" class="form-control" placeholder="e.g., 2026 Tax Guide">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Badge Text</label>
+                    <input id="ar-badge" class="form-control" placeholder="e.g., RBC, IRS, Local 8">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Summary</label>
+                    <textarea id="ar-summary" class="form-control" rows="3"
+                        placeholder="Brief description of the resource"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Resource Type</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="ar-type" value="file" checked onchange="togglePathInput()"> File
+                            Upload
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="ar-type" value="url" onchange="togglePathInput()"> Website URL
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" id="ar-path-label">Filename</label>
+                    <div id="ar-drop-zone" class="drop-zone">
+                        <input id="ar-path" class="form-control" placeholder="Paste filename or drag file here">
+                        <div class="drop-zone-hint">📂 Drag & Drop file here to grab filename</div>
+                    </div>
+                    <p class="text-muted" style="font-size: 11px; margin-top: 4px; color: #666;" id="ar-helper">
+                        For files: Save file to <strong>tools/</strong> folder first, then drag it here or paste
+                        filename.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeAddResourceModal()">Cancel</button>
+                <button class="btn-primary" onclick="addResourceAndDownload()">Add & Download Updated File</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modal Functions
+        function openAddResourceModal() {
+            const select = document.getElementById('ar-category');
+            select.innerHTML = '<option value="">Select Category...</option>';
+
+            // Populate categories from existing h2 tags
+            document.querySelectorAll('.category-header h2').forEach(h2 => {
+                const catName = h2.textContent.trim();
+                const option = document.createElement('option');
+                option.value = catName;
+                option.textContent = catName;
+                select.appendChild(option);
+            });
+
+            // Add "Create New" option
+            const newOption = document.createElement('option');
+            newOption.value = 'CREATE_NEW';
+            newOption.textContent = '+ Create New Category';
+            newOption.style.fontWeight = 'bold';
+            newOption.style.color = 'var(--brand-navy)';
+            select.appendChild(newOption);
+
+            document.getElementById('add-resource-modal').classList.add('show');
+
+            // Setup Drop Zone
+            setupDropZone();
+        }
+
+        function setupDropZone() {
+            const dropZone = document.getElementById('ar-drop-zone');
+            const input = document.getElementById('ar-path');
+
+            // Drag events
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight(e) {
+                dropZone.classList.add('dragover');
+            }
+
+            function unhighlight(e) {
+                dropZone.classList.remove('dragover');
+            }
+
+            dropZone.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    input.value = files[0].name;
+                    // Trigger input event manually if needed, or just set value
+                }
+            }
+
+            // Clean path on paste (remove quotes if "Copy as path" was used)
+            input.addEventListener('input', (e) => {
+                let val = e.target.value;
+                if (val.startsWith('"') && val.endsWith('"')) {
+                    val = val.slice(1, -1);
+                }
+                // Optional: If user pastes full path C:\Users\..., try to extract basename?
+                // For now just stripping quotes is safest for "Copy as path"
+                e.target.value = val;
+            });
+        }
+
+        function closeAddResourceModal() {
+            document.getElementById('add-resource-modal').classList.remove('show');
+            // Reset form
+            document.getElementById('ar-category').value = '';
+            document.getElementById('ar-new-category').style.display = 'none';
+            document.getElementById('ar-new-category').value = '';
+            document.getElementById('ar-title').value = '';
+            document.getElementById('ar-badge').value = '';
+            document.getElementById('ar-summary').value = '';
+            document.getElementById('ar-path').value = '';
+            document.querySelector('input[name="ar-type"][value="file"]').checked = true;
+            togglePathInput();
+        }
+
+        function toggleNewCategoryInput() {
+            const select = document.getElementById('ar-category');
+            const input = document.getElementById('ar-new-category');
+            if (select.value === 'CREATE_NEW') {
+                input.style.display = 'block';
+                input.focus();
+            } else {
+                input.style.display = 'none';
+                input.value = '';
+            }
+        }
+
+        function togglePathInput() {
+            const isUrl = document.querySelector('input[name="ar-type"][value="url"]').checked;
+            const label = document.getElementById('ar-path-label');
+            const input = document.getElementById('ar-path');
+            const helper = document.getElementById('ar-helper');
+            const dropZone = document.getElementById('ar-drop-zone');
+            const dropHint = dropZone.querySelector('.drop-zone-hint');
+
+            if (isUrl) {
+                label.textContent = 'Website URL';
+                input.placeholder = 'https://example.com';
+                helper.style.display = 'none';
+                dropZone.style.borderStyle = 'solid';
+                dropZone.style.borderWidth = '0';
+                dropZone.style.padding = '0';
+                dropZone.style.background = 'transparent';
+                dropHint.style.display = 'none';
+            } else {
+                label.textContent = 'Filename';
+                input.placeholder = 'Paste filename or drag file here';
+                helper.style.display = 'block';
+                dropZone.style.borderStyle = 'dashed';
+                dropZone.style.borderWidth = '2px';
+                dropZone.style.padding = '8px';
+                dropZone.style.background = '#fafafa';
+                dropHint.style.display = 'block';
+            }
+        }
+
+        function addResourceAndDownload() {
+            // 1. Get Values
+            const categorySelect = document.getElementById('ar-category');
+            let categoryName = categorySelect.value;
+            if (categoryName === 'CREATE_NEW') {
+                categoryName = document.getElementById('ar-new-category').value.trim();
+            }
+
+            const title = document.getElementById('ar-title').value.trim();
+            const badge = document.getElementById('ar-badge').value.trim();
+            const summary = document.getElementById('ar-summary').value.trim();
+            const isUrl = document.querySelector('input[name="ar-type"][value="url"]').checked;
+            let path = document.getElementById('ar-path').value.trim();
+
+            // Validation
+            if (!categoryName || !title || !path) {
+                alert('Please fill in Category, Title, and Filename/URL.');
+                return;
+            }
+
+            // 2. Build HTML for new card
+            const badgeHtml = badge ? `<span class="badge" style="background: rgba(212, 175, 55, 0.15); color: var(--brand-gold-hover); border: 1px solid var(--brand-gold);">${badge}</span>` : '';
+
+            const newCardHtml = `
+                <div class="resource-card">
+                    <h3>${title} ${badgeHtml}</h3>
+                    <p>${summary}</p>
+                    <div class="meta">
+                        <span class="verified">${isUrl ? 'External Link' : 'File Resource'}</span>
+                        <a href="${path}" target="_blank" class="link-btn">
+                            ${isUrl ? 'Visit Site' : 'View File'}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>`;
+
+            // 3. Insert into DOM
+            // Find category section
+            let targetSection = null;
+            document.querySelectorAll('.category-header h2').forEach(h2 => {
+                if (h2.textContent.trim() === categoryName) {
+                    targetSection = h2.closest('.category-section');
+                }
+            });
+
+            // Iterate to create new section if needed
+            if (!targetSection) {
+                // Create new section HTML
+                const newSectionHtml = `
+        <section class="category-section">
+            <div class="category-header">
+                <div class="category-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                </div>
+                <h2>${categoryName}</h2>
+            </div>
+            <div class="resources-grid">
+                ${newCardHtml}
+            </div>
+        </section>`;
+
+                // Insert new section before script tag (end of container)
+                const container = document.querySelector('.container');
+                container.insertAdjacentHTML('beforeend', newSectionHtml);
+            } else {
+                // Append to existing grid
+                const grid = targetSection.querySelector('.resources-grid');
+                grid.insertAdjacentHTML('beforeend', newCardHtml);
+            }
+
+            // 4. Download updated HTML
+            closeAddResourceModal();
+
+            // Get full HTML string
+            const fullHtml = '<!DOCTYPE html>\n<html lang="en">\n' + document.documentElement.innerHTML + '\n</html>';
+
+            const blob = new Blob([fullHtml], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'learning-resources.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            alert('File downloaded! Please save it to your tools folder to replace the existing file.');
+            location.reload(); // Reload to reflect changes (or just keep them in memory until replace)
+        }
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function (e) {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.resource-card');
+            const sections = document.querySelectorAll('.category-section');
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
+                const description = card.querySelector('p')?.textContent.toLowerCase() || '';
+                const badge = card.querySelector('.badge')?.textContent.toLowerCase() || '';
+
+                const matches = title.includes(searchTerm) ||
+                    description.includes(searchTerm) ||
+                    badge.includes(searchTerm);
+
+                if (matches || searchTerm === '') {
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Hide sections with no visible cards
+            sections.forEach(section => {
+                const visibleCards = section.querySelectorAll('.resource-card:not(.hidden)');
+                if (visibleCards.length === 0) {
+                    section.classList.add('hidden');
+                } else {
+                    section.classList.remove('hidden');
+                }
+            });
+
+            // Update results count
+            const resultsDiv = document.getElementById('searchResultsCount');
+            if (searchTerm) {
+                resultsDiv.textContent = `${visibleCount} resource${visibleCount !== 1 ? 's' : ''} found`;
+            } else {
+                resultsDiv.textContent = '';
+            }
+        });
+    </script>
+</body>
+
+</html>

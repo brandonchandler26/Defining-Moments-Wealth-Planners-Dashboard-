@@ -1,0 +1,3095 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax-Aware Portfolio Rebalancing Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <!-- html2pdf for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --brand-navy: #00205B;
+            --brand-navy-light: #003380;
+            --brand-gold: #D4AF37;
+            --brand-gold-hover: #B5952F;
+            --brand-light: #F9F9F7;
+            --success-green: #10b981;
+            --warning-orange: #f97316;
+            --danger-red: #ef4444;
+        }
+
+        * {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background: var(--brand-light);
+            color: #1a1a2e;
+            min-height: 100vh;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--brand-light);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--brand-gold);
+            border-radius: 5px;
+        }
+
+        /* Header */
+        .header-section {
+            background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-navy-light) 100%);
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+            border-bottom: 4px solid var(--brand-gold);
+        }
+
+        .header-section h1 {
+            color: white;
+            font-weight: 700;
+            font-size: 1.75rem;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .header-section .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .icon-gold {
+            color: var(--brand-gold);
+        }
+
+        /* Cards */
+        .card-custom {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header-navy {
+            background: var(--brand-navy);
+            color: white;
+            padding: 0.875rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-header-navy::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--brand-gold);
+            border-radius: 50%;
+        }
+
+        .card-header-gold {
+            background: linear-gradient(135deg, var(--brand-gold) 0%, var(--brand-gold-hover) 100%);
+            color: var(--brand-navy);
+            padding: 0.875rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card-body-custom {
+            padding: 1.25rem;
+        }
+
+        /* Form elements */
+        .form-label-custom {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--brand-navy);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control-custom {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .form-control-custom:focus {
+            outline: none;
+            border-color: var(--brand-gold);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+        }
+
+        textarea.form-control-custom {
+            min-height: 180px;
+            resize: vertical;
+        }
+
+        /* Buttons */
+        .btn-primary-custom {
+            background: var(--brand-navy);
+            color: white;
+            border: none;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            border-radius: 8px;
+            font-size: 0.9375rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary-custom:hover {
+            background: var(--brand-navy-light);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 32, 91, 0.3);
+        }
+
+        .btn-gold {
+            background: var(--brand-gold);
+            color: var(--brand-navy);
+            border: none;
+            padding: 0.625rem 1.25rem;
+            font-weight: 600;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-gold:hover {
+            background: var(--brand-gold-hover);
+            color: var(--brand-navy);
+        }
+
+        .btn-outline-navy {
+            background: transparent;
+            color: var(--brand-navy);
+            border: 2px solid var(--brand-navy);
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            transition: all 0.2s;
+        }
+
+        .btn-outline-navy:hover {
+            background: var(--brand-navy);
+            color: white;
+        }
+
+        /* Tables */
+        .table-custom {
+            font-size: 0.8125rem;
+            margin-bottom: 0;
+        }
+
+        .table-custom thead {
+            background: var(--brand-light);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .table-custom thead th {
+            color: var(--brand-navy);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.6875rem;
+            letter-spacing: 0.5px;
+            padding: 0.875rem 1rem;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .table-custom tbody td {
+            padding: 0.75rem 1rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .table-custom tbody tr:hover {
+            background: rgba(212, 175, 55, 0.05);
+        }
+
+        .table-custom tfoot {
+            background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-navy-light) 100%);
+            color: white;
+        }
+
+        .table-custom tfoot td {
+            padding: 0.875rem 1rem;
+            font-weight: 700;
+        }
+
+        /* Table wrappers */
+        .table-wrapper {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 0 0 8px 8px;
+        }
+
+        /* Badges & Tags */
+        .badge-sell {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-red);
+            padding: 0.25rem 0.625rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+        }
+
+        .badge-buy {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-green);
+            padding: 0.25rem 0.625rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+        }
+
+        .badge-neutral {
+            background: rgba(100, 116, 139, 0.1);
+            color: #64748b;
+            padding: 0.25rem 0.625rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+        }
+
+        /* Summary Stats */
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .stat-card:hover {
+            border-color: var(--brand-gold);
+            transform: translateY(-2px);
+        }
+
+        .stat-card.highlighted {
+            border-color: var(--brand-gold);
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.05) 0%, white 100%);
+        }
+
+        .stat-card.navy {
+            background: var(--brand-navy);
+            border-color: var(--brand-navy);
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 0.6875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            margin-bottom: 0.375rem;
+        }
+
+        .stat-card.navy .stat-label {
+            color: var(--brand-gold);
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: clamp(0.875rem, 2.5vw, 1.25rem);
+            font-weight: 700;
+            color: var(--brand-navy);
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .stat-card {
+            min-width: 0;
+        }
+
+        .stat-card.navy .stat-value {
+            color: white;
+        }
+
+        .stat-subtext {
+            font-size: 0.625rem;
+            color: #94a3b8;
+            margin-top: 0.25rem;
+        }
+
+        /* Helper text */
+        .helper-text {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        .helper-text.warning {
+            color: var(--warning-orange);
+            font-style: normal;
+            font-weight: 500;
+        }
+
+        /* Info banner */
+        .info-banner {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            font-size: 0.8125rem;
+            color: var(--brand-navy);
+        }
+
+        .info-banner strong {
+            color: var(--brand-gold-hover);
+        }
+
+        /* Color coded values */
+        .text-positive {
+            color: var(--success-green);
+        }
+
+        .text-negative {
+            color: var(--danger-red);
+        }
+
+        .text-navy {
+            color: var(--brand-navy);
+        }
+
+        .text-gold {
+            color: var(--brand-gold-hover);
+        }
+
+        /* Section divider */
+        .section-divider {
+            height: 4px;
+            background: linear-gradient(90deg, var(--brand-gold) 0%, transparent 100%);
+            border-radius: 2px;
+            margin: 2rem 0;
+        }
+
+        /* Results section */
+        #results-section {
+            display: none;
+        }
+
+        #results-section.show {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Error state */
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger-red);
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+        }
+
+        /* Sample data link */
+        .load-sample {
+            color: var(--brand-gold-hover);
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .load-sample:hover {
+            color: var(--brand-navy);
+        }
+
+        /* Asset class row highlight */
+        .asset-class-row {
+            background: rgba(0, 32, 91, 0.03);
+        }
+
+        /* Print styles */
+        @media print {
+            @page {
+                size: landscape;
+                margin: 0.5cm;
+            }
+
+            body {
+                background: white;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            .card-custom {
+                break-inside: avoid;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header-section h1 {
+                font-size: 1.25rem;
+            }
+
+            .stat-value {
+                font-size: 1rem;
+            }
+        }
+
+        /* Protected button styles */
+        .btn-protect {
+            background: transparent;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            padding: 0.25rem 0.625rem;
+            font-weight: 600;
+            border-radius: 6px;
+            font-size: 0.6875rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .btn-protect:hover {
+            background: rgba(124, 58, 237, 0.1);
+            border-color: #7c3aed;
+            color: #7c3aed;
+        }
+
+        .btn-protect.active {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            border-color: #7c3aed;
+            color: white;
+        }
+
+        .btn-protect.active:hover {
+            background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+        }
+
+        .protected-row {
+            background: rgba(124, 58, 237, 0.05) !important;
+        }
+
+        .protected-badge {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            color: white;
+            padding: 0.125rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.625rem;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        /* PDF export specific styles */
+        .pdf-export-mode .no-print {
+            display: none !important;
+        }
+
+        .pdf-header {
+            background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-navy-light) 100%);
+            color: white;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
+            border-bottom: 4px solid var(--brand-gold);
+        }
+
+        .pdf-header h1 {
+            font-size: 1.5rem;
+            margin: 0 0 0.5rem 0;
+            font-weight: 700;
+        }
+
+        .pdf-header .meta {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        .pdf-section-title {
+            background: var(--brand-navy);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.75rem 0;
+            border-radius: 6px;
+        }
+
+        /* Asset class expandable sections */
+        .asset-class-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+        }
+
+        .asset-class-header {
+            background: #f8fafc;
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .asset-class-header:hover {
+            background: #f1f5f9;
+        }
+
+        .asset-class-header .class-name {
+            font-weight: 600;
+            color: var(--brand-navy);
+        }
+
+        .asset-class-header .class-amount {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--danger-red);
+        }
+
+        .asset-class-details {
+            display: none;
+            padding: 0;
+            border-top: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .asset-class-details.expanded {
+            display: block;
+        }
+
+        .tax-recommendation {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.02) 100%);
+            border-left: 3px solid var(--success-green);
+            padding: 0.75rem 1rem;
+            margin: 0;
+            font-size: 0.75rem;
+        }
+
+        .tax-recommendation .rec-label {
+            font-weight: 700;
+            color: var(--success-green);
+            text-transform: uppercase;
+            font-size: 0.625rem;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .tax-recommendation .rec-text {
+            color: #1a1a2e;
+            line-height: 1.5;
+        }
+
+        .tax-recommendation .ticker-highlight {
+            background: rgba(16, 185, 129, 0.15);
+            color: #047857;
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .tax-recommendation .ticker-avoid {
+            background: rgba(239, 68, 68, 0.15);
+            color: #dc2626;
+            padding: 0.125rem 0.375rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .position-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.75rem;
+        }
+
+        .position-row:last-child {
+            border-bottom: none;
+        }
+
+        .position-row .pos-ticker {
+            font-weight: 600;
+            color: var(--brand-navy);
+            min-width: 60px;
+        }
+
+        .position-row .pos-value {
+            color: #64748b;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .position-row .pos-gain {
+            font-family: 'JetBrains Mono', monospace;
+            text-align: right;
+            min-width: 100px;
+        }
+
+        .position-row .gain-low {
+            color: var(--success-green);
+        }
+
+        .position-row .gain-high {
+            color: var(--danger-red);
+        }
+
+        .position-row.recommended {
+            background: rgba(16, 185, 129, 0.05);
+        }
+
+        .position-row.avoid {
+            background: rgba(239, 68, 68, 0.03);
+        }
+
+        .priority-badge {
+            font-size: 0.5625rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: 3px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-left: 0.5rem;
+        }
+
+        .priority-badge.sell-first {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .priority-badge.sell-last {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger-red);
+        }
+
+        .expand-icon {
+            transition: transform 0.2s;
+            color: #94a3b8;
+        }
+
+        .asset-class-header.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .no-positions-msg {
+            padding: 1rem;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.75rem;
+        }
+
+        /* Sortable columns */
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 20px !important;
+        }
+
+        .sortable:hover {
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .sortable::after {
+            content: '⇅';
+            position: absolute;
+            right: 4px;
+            opacity: 0.4;
+            font-size: 0.625rem;
+        }
+
+        .sortable.asc::after {
+            content: '↑';
+            opacity: 1;
+            color: var(--brand-gold);
+        }
+
+        .sortable.desc::after {
+            content: '↓';
+            opacity: 1;
+            color: var(--brand-gold);
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background: var(--brand-navy);
+            color: white;
+            padding: 1rem 1.25rem;
+            font-weight: 600;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-body {
+            padding: 1.25rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.25rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        /* Model management styles */
+        .model-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+        }
+
+        .model-select {
+            flex: 1;
+            min-width: 150px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 0.5rem;
+            font-size: 0.8125rem;
+            font-family: inherit;
+        }
+
+        .model-select:focus {
+            outline: none;
+            border-color: var(--brand-gold);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-save {
+            background: var(--success-green);
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #059669;
+        }
+
+        .btn-delete {
+            background: var(--danger-red);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        /* Dictionary badge */
+        .dict-badge {
+            background: var(--brand-gold);
+            color: var(--brand-navy);
+            font-size: 0.625rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: 10px;
+            font-weight: 700;
+            margin-left: 0.25rem;
+        }
+
+        /* Dictionary table */
+        .dict-table {
+            width: 100%;
+            font-size: 0.8125rem;
+            border-collapse: collapse;
+        }
+
+        .dict-table th,
+        .dict-table td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .dict-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: var(--brand-navy);
+        }
+
+        .dict-table .btn-delete-row {
+            background: transparent;
+            border: none;
+            color: var(--danger-red);
+            cursor: pointer;
+            padding: 0.25rem;
+        }
+
+        /* Unknown tickers list */
+        .unknown-ticker-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .unknown-ticker-row .ticker-name {
+            font-weight: 600;
+            min-width: 80px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .unknown-ticker-row select {
+            flex: 1;
+            padding: 0.375rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 0.8125rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <div class="header-section no-print">
+        <div class="container">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                <div class="text-center text-md-start mb-3 mb-md-0">
+                    <h1>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="icon-gold">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
+                            <path d="M12 18V6" />
+                        </svg>
+                        Tax-Aware Portfolio Rebalancing Tool
+                    </h1>
+                    <p class="subtitle mb-0">Intelligent Trade Generation • Tax Impact Analysis • Asset Class
+                        Optimization</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button onclick="openDictionaryModal()" class="btn-gold d-flex align-items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+                        </svg>
+                        Ticker Symbol Library<span class="dict-badge" id="dict-count">0</span>
+                    </button>
+                    <button onclick="exportDataToJSON()" class="btn-gold d-flex align-items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="7 10 12 15 17 10" />
+                            <line x1="12" x2="12" y1="15" y2="3" />
+                        </svg>
+                        Export Data
+                    </button>
+                    <button onclick="document.getElementById('import-file').click()"
+                        class="btn-gold d-flex align-items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" x2="12" y1="3" y2="15" />
+                        </svg>
+                        Import Data
+                    </button>
+                    <input type="file" id="import-file" accept=".json" style="display: none;"
+                        onchange="importDataFromJSON(event)">
+                    <button onclick="exportToExcel()" class="btn-gold d-flex align-items-center gap-2"
+                        id="btn-export-excel" style="display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                            <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                            <path d="M8 13h2" />
+                            <path d="M14 13h2" />
+                            <path d="M8 17h2" />
+                            <path d="M14 17h2" />
+                        </svg>
+                        Export Excel
+                    </button>
+                    <button onclick="exportToPDF()" class="btn-gold d-flex align-items-center gap-2" id="btn-export-pdf"
+                        style="display: none;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                            <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                            <path d="M10 9H8" />
+                            <path d="M16 13H8" />
+                            <path d="M16 17H8" />
+                        </svg>
+                        Export PDF
+                    </button>
+                    <button onclick="window.print()" class="btn-gold d-flex align-items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 6 2 18 2 18 9" />
+                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                            <rect width="12" height="8" x="6" y="14" />
+                        </svg>
+                        Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <!-- Client Info Section -->
+        <div class="row no-print mb-3">
+            <div class="col-md-6">
+                <label class="form-label-custom">Client Name</label>
+                <input type="text" id="clientName" class="form-control-custom w-100" placeholder="Enter client name">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label-custom">Account Number</label>
+                <input type="text" id="accountNumber" class="form-control-custom w-100"
+                    placeholder="Enter account number">
+            </div>
+        </div>
+
+        <!-- Input Section -->
+        <div class="row no-print">
+            <div class="col-lg-6 mb-4">
+                <div class="card-custom">
+                    <div class="card-header-navy">
+                        Current Portfolio
+                    </div>
+                    <div class="card-body-custom">
+                        <label class="form-label-custom">Paste from Excel (Tab-Separated)</label>
+                        <textarea id="currentPortfolio" class="form-control-custom w-100"
+                            placeholder="Ticker Symbol ⇥ % of Portfolio ⇥ Current Market Value ($) ⇥ Quantity ⇥ Long Term Unrealized Gain ($) ⇥ Short Term Unrealized Gain ($)"></textarea>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <p class="helper-text mb-0">
+                                <strong>Columns:</strong> Ticker | % | Market Value | Qty | LT Gain | ST Gain
+                            </p>
+                            <span class="load-sample" onclick="loadSampleCurrent()">Load Sample</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6 mb-4">
+                <div class="card-custom">
+                    <div class="card-header-navy">
+                        Target Portfolio
+                    </div>
+                    <div class="card-body-custom">
+                        <label class="form-label-custom">Paste from Excel (Tab-Separated)</label>
+                        <textarea id="targetPortfolio" class="form-control-custom w-100"
+                            placeholder="Ticker Symbol ⇥ Asset Class ⇥ % of Portfolio"></textarea>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <p class="helper-text mb-0">
+                                <strong>Columns:</strong> Ticker | Asset Class | Target %
+                            </p>
+                            <span class="load-sample" onclick="loadSampleTarget()">Load Sample</span>
+                        </div>
+                        <!-- Model Portfolio Controls -->
+                        <div class="model-controls">
+                            <select id="model-select" class="model-select" onchange="loadSelectedModel()">
+                                <option value="">-- Saved Models --</option>
+                            </select>
+                            <button class="btn-sm btn-save" onclick="openSaveModelModal()">💾 Save</button>
+                            <button class="btn-sm btn-delete" onclick="deleteSelectedModel()">🗑️ Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Generate Button -->
+        <div class="text-center mb-4 no-print">
+            <button onclick="generatePlan()" class="btn-primary-custom">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3v18h18" />
+                    <path d="m19 9-5 5-4-4-3 3" />
+                </svg>
+                Generate Rebalancing Plan
+            </button>
+        </div>
+
+        <!-- Error Display -->
+        <div id="error-container" class="mt-4" style="display: none;"></div>
+
+        <!-- Results Section -->
+        <div id="results-section">
+            <div class="section-divider"></div>
+
+            <!-- Summary Stats -->
+            <div class="row mb-4" id="summary-stats">
+                <!-- Will be populated by JS -->
+            </div>
+
+            <!-- Sells and Buys Tables -->
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card-custom">
+                        <div class="card-header-navy"
+                            style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="me-1">
+                                <path d="m3 16 4 4 4-4" />
+                                <path d="M7 20V4" />
+                                <path d="M11 4h10" />
+                                <path d="M11 8h7" />
+                                <path d="M11 12h4" />
+                            </svg>
+                            Positions to SELL
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table table-custom mb-0" id="sells-table">
+                                <thead>
+                                    <tr>
+                                        <th class="sortable" data-column="ticker" onclick="sortSells('ticker')">Ticker
+                                        </th>
+                                        <th class="text-end sortable" data-column="amount"
+                                            onclick="sortSells('amount')">Amount to Sell</th>
+                                        <th class="text-end sortable" data-column="estSTGain"
+                                            onclick="sortSells('estSTGain')">Est. ST Gain</th>
+                                        <th class="text-end sortable" data-column="estLTGain"
+                                            onclick="sortSells('estLTGain')">Est. LT Gain</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sells-tbody">
+                                </tbody>
+                                <tfoot id="sells-tfoot">
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div class="card-custom">
+                        <div class="card-header-navy"
+                            style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="me-1">
+                                <path d="m3 8 4-4 4 4" />
+                                <path d="M7 4v16" />
+                                <path d="M11 12h10" />
+                                <path d="M11 16h7" />
+                                <path d="M11 20h4" />
+                            </svg>
+                            Positions to BUY
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table table-custom mb-0" id="buys-table">
+                                <thead>
+                                    <tr>
+                                        <th class="sortable" data-column="ticker" onclick="sortBuys('ticker')">Ticker
+                                        </th>
+                                        <th class="sortable" data-column="assetClass" onclick="sortBuys('assetClass')">
+                                            Asset Class</th>
+                                        <th class="text-end sortable" data-column="amount" onclick="sortBuys('amount')">
+                                            Amount to Buy</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="buys-tbody">
+                                </tbody>
+                                <tfoot id="buys-tfoot">
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Protected Positions -->
+            <div class="card-custom" id="protected-card">
+                <div class="card-header-navy" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="me-1">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
+                    </svg>
+                    Protected Positions — Exclude from Sales
+                </div>
+                <div class="card-body-custom">
+                    <div class="info-banner mb-3">
+                        <strong>How to use:</strong> Click "Protect" on any position below to exclude it from sales.
+                        Protected positions will be kept regardless of target allocation. Click "Unprotect" to allow
+                        selling again.
+                    </div>
+                    <div class="table-wrapper" style="max-height: 300px;">
+                        <table class="table table-custom mb-0" id="protected-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 120px;">Status</th>
+                                    <th>Ticker</th>
+                                    <th>Asset Class</th>
+                                    <th class="text-end">Current Value</th>
+                                    <th class="text-end">LT Gain</th>
+                                    <th class="text-end">ST Gain</th>
+                                </tr>
+                            </thead>
+                            <tbody id="protected-tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3 d-flex gap-2">
+                        <button onclick="recalculateWithProtections()" class="btn-primary-custom">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                                <path d="M3 3v5h5" />
+                                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+                                <path d="M16 16h5v5" />
+                            </svg>
+                            Recalculate Plan
+                        </button>
+                        <button onclick="clearAllProtections()" class="btn-outline-navy">
+                            Clear All Protections
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Asset Class Analysis -->
+            <div class="row">
+                <div class="col-lg-6 mb-4">
+                    <div class="card-custom">
+                        <div class="card-header-navy">
+                            Asset Class Analysis — Overweight (Reduce)
+                        </div>
+                        <div class="card-body-custom">
+                            <div class="info-banner mb-3">
+                                <strong>Strategy Tip:</strong> Use this to identify areas to reduce exposure if selling
+                                specific tickers creates too much tax liability.
+                            </div>
+                            <div id="asset-sells-container">
+                                <!-- Will be populated by JS with expandable sections -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 mb-4">
+                    <div class="card-custom">
+                        <div class="card-header-navy">
+                            Asset Class Analysis — Underweight (Add)
+                        </div>
+                        <div class="card-body-custom">
+                            <div class="info-banner mb-3">
+                                <strong>Strategy Tip:</strong> These are asset classes where you need more exposure.
+                                Direct new purchases here.
+                            </div>
+                            <div class="table-wrapper" style="max-height: 300px;">
+                                <table class="table table-custom mb-0" id="asset-buys-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Asset Class</th>
+                                            <th class="text-end">Current Value</th>
+                                            <th class="text-end">Target Value</th>
+                                            <th class="text-end">Under By</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="asset-buys-tbody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Target State Model -->
+            <div class="card-custom">
+                <div class="card-header-gold">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="me-2">
+                        <circle cx="12" cy="12" r="10" />
+                        <circle cx="12" cy="12" r="6" />
+                        <circle cx="12" cy="12" r="2" />
+                    </svg>
+                    Target State Model — Ideal Portfolio
+                </div>
+                <div class="table-wrapper" style="max-height: 400px;">
+                    <table class="table table-custom mb-0" id="target-model-table">
+                        <thead>
+                            <tr>
+                                <th>Ticker</th>
+                                <th>Asset Class</th>
+                                <th class="text-end">Target %</th>
+                                <th class="text-end">Target Value</th>
+                            </tr>
+                        </thead>
+                        <tbody id="target-model-tbody">
+                        </tbody>
+                        <tfoot id="target-model-tfoot">
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="mt-4 p-3 bg-white rounded-3 border" style="font-size: 0.75rem; color: #64748b;">
+                <strong>Disclaimer:</strong> This tool provides estimates for informational purposes only and does not
+                constitute tax, legal, or investment advice.
+                Tax calculations are simplified estimates using pro-rata allocation and may not reflect actual tax
+                liability.
+                Consult with a qualified tax professional or financial advisor before making investment decisions.
+                Past performance does not guarantee future results.
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Model Modal -->
+    <div class="modal-overlay" id="save-model-modal" onclick="closeSaveModelModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">💾 Save Target Model</div>
+            <div class="modal-body">
+                <label class="form-label-custom">Model Name</label>
+                <input type="text" id="model-name-input" class="form-control-custom w-100"
+                    placeholder="e.g., Schwab Moderate Growth">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline-navy" onclick="closeSaveModelModal()">Cancel</button>
+                <button class="btn-primary-custom" onclick="saveCurrentModel()">Save Model</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ticker Dictionary Modal -->
+    <div class="modal-overlay" id="dictionary-modal" onclick="closeDictionaryModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 600px;">
+            <div class="modal-header">📖 Ticker Symbol Library</div>
+            <div class="modal-body">
+                <p class="helper-text mb-3">The tool automatically recognizes these tickers and assigns asset classes.
+                </p>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    <table class="dict-table" id="dictionary-table">
+                        <thead>
+                            <tr>
+                                <th>Ticker</th>
+                                <th>Asset Class</th>
+                                <th style="width: 50px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="dictionary-tbody">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-3 d-flex gap-2 flex-wrap">
+                    <input type="text" id="new-ticker-input" class="form-control-custom" placeholder="Ticker"
+                        style="width: 100px;">
+                    <select id="new-assetclass-select" class="form-control-custom" style="flex: 1; min-width: 150px;"
+                        onchange="toggleOtherInput(this, 'new-assetclass-other')">
+                        <option value="">Select asset class...</option>
+                    </select>
+                    <input type="text" id="new-assetclass-other" class="form-control-custom"
+                        placeholder="Enter custom class" style="flex: 1; display: none;">
+                    <button class="btn-sm btn-save" onclick="addDictionaryEntry()">Add</button>
+                </div>
+            </div>
+            <div class="modal-footer" style="flex-direction: column; align-items: stretch;">
+                <details style="width: 100%; margin-bottom: 0.75rem;">
+                    <summary style="cursor: pointer; font-weight: 600; font-size: 0.8125rem; color: var(--brand-navy);">
+                        📋 Mass Upload (Paste TSV)</summary>
+                    <div style="margin-top: 0.5rem;">
+                        <textarea id="mass-upload-input" class="form-control-custom w-100" rows="4"
+                            placeholder="Ticker ⇥ Asset Class&#10;VTI ⇥ Large Cap Blend&#10;VXUS ⇥ International Developed"></textarea>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <p class="helper-text mb-0"><strong>Format:</strong> Ticker | Asset Class (tab-separated)
+                            </p>
+                            <button class="btn-sm btn-save" onclick="massUploadDictionary()">Upload All</button>
+                        </div>
+                    </div>
+                </details>
+                <button class="btn-outline-navy" onclick="closeDictionaryModal()"
+                    style="align-self: flex-end;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unknown Tickers Modal -->
+    <div class="modal-overlay" id="unknown-tickers-modal">
+        <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 550px;">
+            <div class="modal-header">🏷️ Categorize Unknown Tickers</div>
+            <div class="modal-body">
+                <p class="helper-text mb-3">These tickers are not in your dictionary. Assign asset classes to remember
+                    them for next time.</p>
+                <div id="unknown-tickers-list" style="max-height: 300px; overflow-y: auto;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline-navy" onclick="skipUnknownTickers()">Skip</button>
+                <button class="btn-primary-custom" onclick="saveUnknownTickers()">Save & Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Track protected tickers and parsed data
+        let protectedTickers = new Set();
+        let lastCurrentPortfolio = [];
+        let lastTargetPortfolio = [];
+        let parsingWarnings = []; // Track parsing issues to surface to user
+
+        // Track sorted data
+        let lastSells = [];
+        let lastBuys = [];
+
+        // Sort state
+        let sellsSortState = { column: 'amount', direction: 'desc' };
+        let buysSortState = { column: 'amount', direction: 'desc' };
+
+        // ===== LOCAL STORAGE KEYS =====
+        const STORAGE_KEYS = {
+            MODELS: 'rebalance_saved_models',
+            TICKER_DICT: 'rebalance_ticker_dict'
+        };
+
+        // Track unknown tickers during parsing
+        let pendingUnknownTickers = [];
+
+        // ===== STANDARD ASSET CLASSES =====
+        const ASSET_CLASSES = [
+            'Large Cap Growth', 'Large Cap Value', 'Large Cap Blend',
+            'Mid Cap Growth', 'Mid Cap Value', 'Mid Cap Blend',
+            'Small Cap Growth', 'Small Cap Value', 'Small Cap Blend',
+            'International Developed', 'Emerging Markets',
+            'US Bonds', 'International Bonds', 'High Yield Bonds',
+            'Real Estate', 'Commodities', 'Cash', 'Other'
+        ];
+
+        // Generate options HTML for asset class dropdowns
+        const getAssetClassOptionsHtml = (selectedValue = '') => {
+            return ASSET_CLASSES.map(c =>
+                `<option value="${c}" ${c === selectedValue ? 'selected' : ''}>${c}</option>`
+            ).join('');
+        };
+
+        // Toggle "Other" input visibility when dropdown changes
+        const toggleOtherInput = (selectEl, otherInputId) => {
+            const otherInput = document.getElementById(otherInputId);
+            if (selectEl.value === 'Other') {
+                otherInput.style.display = 'block';
+                otherInput.focus();
+            } else {
+                otherInput.style.display = 'none';
+                otherInput.value = '';
+            }
+        };
+
+        // Get asset class value from dropdown + other input combo
+        const getAssetClassValue = (selectId, otherId) => {
+            const select = document.getElementById(selectId);
+            const other = document.getElementById(otherId);
+            if (select.value === 'Other' && other.value.trim()) {
+                return other.value.trim();
+            }
+            return select.value;
+        };
+
+        // Populate a dropdown with asset class options
+        const populateAssetClassDropdown = (selectId) => {
+            const select = document.getElementById(selectId);
+            if (select) {
+                select.innerHTML = `<option value="">Select asset class...</option>${getAssetClassOptionsHtml()}`;
+            }
+        };
+
+        // ===== MODEL PORTFOLIO FUNCTIONS =====
+        const getModels = () => {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEYS.MODELS)) || {};
+            } catch (e) {
+                return {};
+            }
+        };
+
+        const saveModel = (name, data) => {
+            const models = getModels();
+            models[name] = data;
+            localStorage.setItem(STORAGE_KEYS.MODELS, JSON.stringify(models));
+            renderModelDropdown();
+        };
+
+        const deleteModel = (name) => {
+            const models = getModels();
+            delete models[name];
+            localStorage.setItem(STORAGE_KEYS.MODELS, JSON.stringify(models));
+            renderModelDropdown();
+        };
+
+        const renderModelDropdown = () => {
+            const select = document.getElementById('model-select');
+            const models = getModels();
+            const names = Object.keys(models).sort();
+
+            select.innerHTML = '<option value="">-- Saved Models (' + names.length + ') --</option>';
+            names.forEach(name => {
+                select.innerHTML += `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`;
+            });
+        };
+
+        const loadSelectedModel = () => {
+            const select = document.getElementById('model-select');
+            const name = select.value;
+            if (!name) return;
+
+            const models = getModels();
+            if (models[name]) {
+                document.getElementById('targetPortfolio').value = models[name];
+            }
+        };
+
+        const openSaveModelModal = () => {
+            const targetData = document.getElementById('targetPortfolio').value.trim();
+            if (!targetData) {
+                alert('Please enter target portfolio data first.');
+                return;
+            }
+            document.getElementById('model-name-input').value = '';
+            document.getElementById('save-model-modal').classList.add('show');
+            document.getElementById('model-name-input').focus();
+        };
+
+        const closeSaveModelModal = (event) => {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('save-model-modal').classList.remove('show');
+        };
+
+        const saveCurrentModel = () => {
+            const name = document.getElementById('model-name-input').value.trim();
+            if (!name) {
+                alert('Please enter a model name.');
+                return;
+            }
+            const targetData = document.getElementById('targetPortfolio').value.trim();
+            saveModel(name, targetData);
+            closeSaveModelModal();
+        };
+
+        const deleteSelectedModel = () => {
+            const select = document.getElementById('model-select');
+            const name = select.value;
+            if (!name) {
+                alert('Please select a model to delete.');
+                return;
+            }
+            if (confirm(`Delete model "${name}"?`)) {
+                deleteModel(name);
+            }
+        };
+
+        // ===== TICKER DICTIONARY FUNCTIONS =====
+        const getTickerDict = () => {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEYS.TICKER_DICT)) || {};
+            } catch (e) {
+                return {};
+            }
+        };
+
+        const setTickerDict = (dict) => {
+            localStorage.setItem(STORAGE_KEYS.TICKER_DICT, JSON.stringify(dict));
+            updateDictBadge();
+        };
+
+        const lookupAssetClass = (ticker) => {
+            const dict = getTickerDict();
+            return dict[ticker.toUpperCase()] || null;
+        };
+
+        const saveTickerMapping = (ticker, assetClass) => {
+            const dict = getTickerDict();
+            dict[ticker.toUpperCase()] = assetClass;
+            setTickerDict(dict);
+        };
+
+        const deleteTickerMapping = (ticker) => {
+            const dict = getTickerDict();
+            delete dict[ticker.toUpperCase()];
+            setTickerDict(dict);
+        };
+
+        const updateDictBadge = () => {
+            const dict = getTickerDict();
+            const count = Object.keys(dict).length;
+            document.getElementById('dict-count').textContent = count;
+        };
+
+        const openDictionaryModal = () => {
+            renderDictionaryTable();
+            populateAssetClassDropdown('new-assetclass-select');
+            document.getElementById('dictionary-modal').classList.add('show');
+        };
+
+        const closeDictionaryModal = (event) => {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('dictionary-modal').classList.remove('show');
+        };
+
+        const renderDictionaryTable = () => {
+            const tbody = document.getElementById('dictionary-tbody');
+            const dict = getTickerDict();
+            const tickers = Object.keys(dict).sort();
+
+            if (tickers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-3 text-muted">No tickers saved yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = tickers.map(ticker => `
+                <tr>
+                    <td class="fw-bold">${escapeHtml(ticker)}</td>
+                    <td>${escapeHtml(dict[ticker])}</td>
+                    <td><button class="btn-delete-row" onclick="deleteDictEntry('${escapeHtml(ticker)}')">✕</button></td>
+                </tr>
+            `).join('');
+        };
+
+        const addDictionaryEntry = () => {
+            const ticker = document.getElementById('new-ticker-input').value.trim().toUpperCase();
+            const assetClass = getAssetClassValue('new-assetclass-select', 'new-assetclass-other');
+
+            if (!ticker || !assetClass) {
+                alert('Please enter a ticker and select an asset class.');
+                return;
+            }
+
+            saveTickerMapping(ticker, assetClass);
+            renderDictionaryTable();
+            document.getElementById('new-ticker-input').value = '';
+            document.getElementById('new-assetclass-select').value = '';
+            document.getElementById('new-assetclass-other').value = '';
+            document.getElementById('new-assetclass-other').style.display = 'none';
+        };
+
+        const deleteDictEntry = (ticker) => {
+            deleteTickerMapping(ticker);
+            renderDictionaryTable();
+        };
+
+        const massUploadDictionary = () => {
+            const text = document.getElementById('mass-upload-input').value.trim();
+            if (!text) {
+                alert('Please paste ticker data first.');
+                return;
+            }
+
+            const lines = text.split(/\r?\n/);
+            let added = 0;
+            const needsCategorization = [];
+
+            for (const line of lines) {
+                const cols = line.split(/\t/);
+                const ticker = cols[0]?.trim().toUpperCase();
+                if (!ticker) continue;
+
+                const assetClass = cols[1]?.trim() || '';
+
+                if (assetClass && assetClass.toLowerCase() !== 'uncategorized') {
+                    // Has valid asset class - save directly
+                    saveTickerMapping(ticker, assetClass);
+                    added++;
+                } else if (!lookupAssetClass(ticker)) {
+                    // No asset class and not in dictionary - needs categorization
+                    needsCategorization.push({ ticker });
+                }
+            }
+
+            renderDictionaryTable();
+            document.getElementById('mass-upload-input').value = '';
+
+            if (added > 0) {
+                alert(`Added ${added} ticker mappings.${needsCategorization.length > 0 ? ` ${needsCategorization.length} ticker(s) need categorization.` : ''}`);
+            }
+
+            // Trigger categorization modal for tickers without asset classes
+            if (needsCategorization.length > 0) {
+                showUnknownTickersModal(needsCategorization);
+            }
+        };
+
+        // ===== UNKNOWN TICKERS MODAL =====
+        const showUnknownTickersModal = (tickers) => {
+            pendingUnknownTickers = tickers;
+            const container = document.getElementById('unknown-tickers-list');
+
+            const optionsHtml = getAssetClassOptionsHtml();
+
+            container.innerHTML = tickers.map(t => `
+                <div class="unknown-ticker-row">
+                    <span class="ticker-name">${escapeHtml(t.ticker)}</span>
+                    <select id="unknown-class-${t.ticker}" class="form-control-custom" onchange="toggleOtherInput(this, 'unknown-other-${t.ticker}')">
+                        <option value="">Select asset class...</option>
+                        ${optionsHtml}
+                    </select>
+                    <input type="text" id="unknown-other-${t.ticker}" class="form-control-custom" placeholder="Custom class" style="display: none; width: 120px;">
+                </div>
+            `).join('');
+
+            document.getElementById('unknown-tickers-modal').classList.add('show');
+        };
+
+        const skipUnknownTickers = () => {
+            document.getElementById('unknown-tickers-modal').classList.remove('show');
+            pendingUnknownTickers = [];
+        };
+
+        const saveUnknownTickers = () => {
+            pendingUnknownTickers.forEach(t => {
+                const select = document.getElementById(`unknown-class-${t.ticker}`);
+                const otherInput = document.getElementById(`unknown-other-${t.ticker}`);
+                let assetClass = '';
+                if (select && select.value) {
+                    if (select.value === 'Other' && otherInput && otherInput.value.trim()) {
+                        assetClass = otherInput.value.trim();
+                    } else if (select.value !== 'Other') {
+                        assetClass = select.value;
+                    }
+                }
+                if (assetClass) {
+                    saveTickerMapping(t.ticker, assetClass);
+                }
+            });
+            document.getElementById('unknown-tickers-modal').classList.remove('show');
+            pendingUnknownTickers = [];
+            updateDictBadge();
+        };
+
+        // ===== JSON EXPORT/IMPORT =====
+        const exportDataToJSON = () => {
+            const data = {
+                version: 1,
+                exportDate: new Date().toISOString(),
+                models: getModels(),
+                tickerDictionary: getTickerDict()
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `rebalancing_data_${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        };
+
+        const importDataFromJSON = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    if (!data.version || !data.models || !data.tickerDictionary) {
+                        alert('Invalid data file format.');
+                        return;
+                    }
+
+                    const existingModels = getModels();
+                    const existingDict = getTickerDict();
+                    const hasExisting = Object.keys(existingModels).length > 0 || Object.keys(existingDict).length > 0;
+
+                    let mode = 'replace';
+                    if (hasExisting) {
+                        mode = confirm('You have existing data. Click OK to MERGE (add to existing), or Cancel to REPLACE all data.') ? 'merge' : 'replace';
+                    }
+
+                    if (mode === 'merge') {
+                        // Merge models
+                        const mergedModels = { ...existingModels, ...data.models };
+                        localStorage.setItem(STORAGE_KEYS.MODELS, JSON.stringify(mergedModels));
+
+                        // Merge dictionary
+                        const mergedDict = { ...existingDict, ...data.tickerDictionary };
+                        localStorage.setItem(STORAGE_KEYS.TICKER_DICT, JSON.stringify(mergedDict));
+                    } else {
+                        localStorage.setItem(STORAGE_KEYS.MODELS, JSON.stringify(data.models));
+                        localStorage.setItem(STORAGE_KEYS.TICKER_DICT, JSON.stringify(data.tickerDictionary));
+                    }
+
+                    renderModelDropdown();
+                    updateDictBadge();
+                    alert(`Data imported successfully! ${Object.keys(data.models).length} models and ${Object.keys(data.tickerDictionary).length} ticker mappings loaded.`);
+
+                } catch (err) {
+                    alert('Error reading file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+
+            // Reset file input for re-import
+            event.target.value = '';
+        };
+
+        // ===== INIT ON PAGE LOAD =====
+        document.addEventListener('DOMContentLoaded', () => {
+            renderModelDropdown();
+            updateDictBadge();
+            populateAssetClassDropdown('new-assetclass-select');
+        });
+
+
+        // Utility: Escape HTML to prevent XSS
+        const escapeHtml = (str) => {
+            const div = document.createElement('div');
+            div.textContent = String(str);
+            return div.innerHTML;
+        };
+
+        // Utility functions
+        const formatCurrency = (value) => {
+            if (!Number.isFinite(value)) return '$0.00';
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value);
+        };
+
+        const formatPercent = (value) => {
+            return new Intl.NumberFormat('en-US', {
+                style: 'percent',
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(value / 100);
+        };
+
+        // Sort Helper
+        const sortData = (data, column, direction) => {
+            return [...data].sort((a, b) => {
+                let valA = a[column];
+                let valB = b[column];
+
+                // Handle string comparison (Ticker, Asset Class)
+                if (typeof valA === 'string') {
+                    valA = valA.toLowerCase();
+                    valB = valB.toLowerCase();
+                }
+
+                if (valA < valB) return direction === 'asc' ? -1 : 1;
+                if (valA > valB) return direction === 'asc' ? 1 : -1;
+                return 0;
+            });
+        };
+
+        // Sort Sells Table
+        const sortSells = (column) => {
+            if (sellsSortState.column === column) {
+                sellsSortState.direction = sellsSortState.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                sellsSortState.column = column;
+                sellsSortState.direction = 'desc'; // Default to desc for new column (usually amounts)
+                if (column === 'ticker' || column === 'assetClass') {
+                    sellsSortState.direction = 'asc'; // Default to asc for text
+                }
+            }
+
+            const sortedSells = sortData(lastSells, column, sellsSortState.direction);
+
+            // Recalculate totals for the footer
+            const totalSellAmount = sortedSells.reduce((sum, s) => sum + s.amount, 0);
+            const totalSTGain = sortedSells.reduce((sum, s) => sum + s.estSTGain, 0);
+            const totalLTGain = sortedSells.reduce((sum, s) => sum + s.estLTGain, 0);
+
+            renderSellsTable(sortedSells, totalSellAmount, totalSTGain, totalLTGain);
+        };
+
+        // Sort Buys Table
+        const sortBuys = (column) => {
+            if (buysSortState.column === column) {
+                buysSortState.direction = buysSortState.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                buysSortState.column = column;
+                buysSortState.direction = 'desc';
+                if (column === 'ticker' || column === 'assetClass') {
+                    buysSortState.direction = 'asc';
+                }
+            }
+
+            const sortedBuys = sortData(lastBuys, column, buysSortState.direction);
+
+            // Recalculate totals
+            const totalBuyAmount = sortedBuys.reduce((sum, b) => sum + b.amount, 0);
+
+            renderBuysTable(sortedBuys, totalBuyAmount);
+        };
+
+        const parseNumber = (str, fieldName = 'value') => {
+            if (str === null || str === undefined || str === '') return 0;
+            // Remove currency symbols, commas, parentheses (for negative), and whitespace
+            const cleaned = String(str).replace(/[$,\s]/g, '').replace(/\(([^)]+)\)/, '-$1');
+            const num = parseFloat(cleaned);
+            if (isNaN(num)) {
+                parsingWarnings.push(`Could not parse ${fieldName}: "${str}"`);
+                return 0;
+            }
+            return num;
+        };
+
+        const parsePercent = (str, fieldName = 'percent') => {
+            if (str === null || str === undefined || str === '') return 0;
+            // Remove % symbol and parse
+            const cleaned = String(str).replace(/%/g, '').trim();
+            const num = parseFloat(cleaned);
+            if (isNaN(num)) {
+                parsingWarnings.push(`Could not parse ${fieldName}: "${str}"`);
+                return 0;
+            }
+            return num;
+        };
+
+        // Parse TSV data
+        const parseTSV = (text, expectedColumns) => {
+            if (!text || !text.trim()) return [];
+
+            const lines = text.trim().split(/\r?\n/);
+            const results = [];
+
+            // Detect if first row is header
+            const firstLine = lines[0].split(/\t/);
+            let startIndex = 0;
+
+            // Check if first row contains common header keywords
+            const headerKeywords = ['ticker', 'symbol', 'asset', 'class', 'portfolio', '%', 'percent', 'value', 'market', 'quantity', 'qty', 'gain', 'unrealized'];
+            const firstLineText = firstLine.join(' ').toLowerCase();
+            if (headerKeywords.some(kw => firstLineText.includes(kw))) {
+                startIndex = 1;
+            }
+
+            for (let i = startIndex; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                const cols = line.split(/\t/);
+                if (cols.length >= expectedColumns) {
+                    results.push(cols);
+                }
+            }
+
+            return results;
+        };
+
+        // Parse current portfolio (6 columns: Ticker, %, MarketValue, Qty, LTGain, STGain)
+        const parseCurrentPortfolio = (text) => {
+            const rows = parseTSV(text, 3); // At minimum need ticker, %, value
+            const portfolio = [];
+            const seenTickers = new Set();
+            const unknownTickers = []; // Track tickers not in dictionary
+
+            for (const cols of rows) {
+                const ticker = cols[0]?.trim().toUpperCase();
+                if (!ticker) continue;
+
+                // Check for duplicate tickers
+                if (seenTickers.has(ticker)) {
+                    parsingWarnings.push(`Duplicate ticker "${ticker}" found - using last occurrence only`);
+                    // Remove the previous entry
+                    const existingIdx = portfolio.findIndex(p => p.ticker === ticker);
+                    if (existingIdx >= 0) portfolio.splice(existingIdx, 1);
+                }
+                seenTickers.add(ticker);
+
+                const marketValue = parseNumber(cols[2], `${ticker} market value`);
+
+                // Filter out zero or negative market value positions
+                if (marketValue <= 0) {
+                    parsingWarnings.push(`Skipping ${ticker}: zero or negative market value ($${marketValue})`);
+                    continue;
+                }
+
+                // Asset class: lookup from dictionary only
+                const dictClass = lookupAssetClass(ticker);
+                let assetClass = dictClass || 'Uncategorized';
+
+                if (!dictClass) {
+                    unknownTickers.push({ ticker });
+                }
+
+                portfolio.push({
+                    ticker: ticker,
+                    assetClass: assetClass,
+                    percent: parsePercent(cols[1], `${ticker} percent`),
+                    marketValue: marketValue,
+                    quantity: parseNumber(cols[3] || 0, `${ticker} quantity`),
+                    ltGain: parseNumber(cols[4] || 0, `${ticker} LT gain`),
+                    stGain: parseNumber(cols[5] || 0, `${ticker} ST gain`)
+                });
+            }
+
+            // Show modal for unknown tickers if any
+            if (unknownTickers.length > 0) {
+                showUnknownTickersModal(unknownTickers);
+            }
+
+            return portfolio;
+        };
+
+        // Parse target portfolio
+        const parseTargetPortfolio = (text) => {
+            const rows = parseTSV(text, 3);
+            const portfolio = [];
+            const seenTickers = new Set();
+
+            for (const cols of rows) {
+                const ticker = cols[0]?.trim().toUpperCase();
+                if (!ticker) continue;
+
+                // Check for duplicate tickers
+                if (seenTickers.has(ticker)) {
+                    parsingWarnings.push(`Duplicate target ticker "${ticker}" found - using last occurrence only`);
+                    const existingIdx = portfolio.findIndex(p => p.ticker === ticker);
+                    if (existingIdx >= 0) portfolio.splice(existingIdx, 1);
+                }
+                seenTickers.add(ticker);
+
+                // Asset class: use pasted value, or lookup from dictionary
+                let assetClass = cols[1]?.trim() || '';
+                const dictClass = lookupAssetClass(ticker);
+
+                if (!assetClass || assetClass.toLowerCase() === 'uncategorized') {
+                    assetClass = dictClass || 'Uncategorized';
+                } else if (!dictClass) {
+                    // Has asset class in paste but not in dictionary - learn it
+                    saveTickerMapping(ticker, assetClass);
+                }
+
+                portfolio.push({
+                    ticker: ticker,
+                    assetClass: assetClass,
+                    targetPercent: parsePercent(cols[2], `${ticker} target percent`)
+                });
+            }
+
+            return portfolio;
+        };
+
+        // Show error
+        const showError = (message) => {
+            const container = document.getElementById('error-container');
+            container.innerHTML = `<div class="error-message">${message}</div>`;
+            container.style.display = 'block';
+            document.getElementById('results-section').classList.remove('show');
+        };
+
+        // Clear error
+        const clearError = () => {
+            const container = document.getElementById('error-container');
+            container.style.display = 'none';
+            container.innerHTML = '';
+        };
+
+        // Generate the rebalancing plan
+        const generatePlan = () => {
+            clearError();
+            parsingWarnings = []; // Clear previous warnings
+
+            const currentText = document.getElementById('currentPortfolio').value;
+            const targetText = document.getElementById('targetPortfolio').value;
+
+            if (!currentText.trim()) {
+                showError('Please paste your current portfolio data.');
+                return;
+            }
+
+            if (!targetText.trim()) {
+                showError('Please paste your target portfolio data.');
+                return;
+            }
+
+            const currentPortfolio = parseCurrentPortfolio(currentText);
+            const targetPortfolio = parseTargetPortfolio(targetText);
+
+            // Store for recalculation
+            lastCurrentPortfolio = currentPortfolio;
+            lastTargetPortfolio = targetPortfolio;
+
+            if (currentPortfolio.length === 0) {
+                showError('Could not parse current portfolio. Please check the format (tab-separated values).' +
+                    (parsingWarnings.length > 0 ? '<br><br><strong>Details:</strong> ' + parsingWarnings.join('; ') : ''));
+                return;
+            }
+
+            if (targetPortfolio.length === 0) {
+                showError('Could not parse target portfolio. Please check the format (tab-separated values).' +
+                    (parsingWarnings.length > 0 ? '<br><br><strong>Details:</strong> ' + parsingWarnings.join('; ') : ''));
+                return;
+            }
+
+            // Validate target allocations sum to 100%
+            const totalTargetPercent = targetPortfolio.reduce((sum, p) => sum + p.targetPercent, 0);
+            if (Math.abs(totalTargetPercent - 100) > 0.5) {
+                showError(`Target allocations sum to ${totalTargetPercent.toFixed(1)}%, but should equal 100%. Please verify your target portfolio.`);
+                return;
+            }
+
+            // Calculate total portfolio value
+            const totalValue = currentPortfolio.reduce((sum, pos) => sum + pos.marketValue, 0);
+
+            if (totalValue <= 0) {
+                showError('Total portfolio value must be greater than zero.');
+                return;
+            }
+
+            // Use relative threshold for floating-point precision (0.01% of portfolio or $1, whichever is greater)
+            const tradeThreshold = Math.max(1.00, totalValue * 0.0001);
+
+            // Build current holdings map
+            const currentMap = {};
+            for (const pos of currentPortfolio) {
+                currentMap[pos.ticker] = pos;
+            }
+
+            // Build target map with dollar values
+            const targetMap = {};
+            for (const pos of targetPortfolio) {
+                targetMap[pos.ticker] = {
+                    ...pos,
+                    targetValue: totalValue * (pos.targetPercent / 100)
+                };
+            }
+
+            // Calculate trades
+            const sells = [];
+            const buys = [];
+
+            // All tickers (union of current and target)
+            const allTickers = new Set([
+                ...currentPortfolio.map(p => p.ticker),
+                ...targetPortfolio.map(p => p.ticker)
+            ]);
+
+            for (const ticker of allTickers) {
+                const current = currentMap[ticker];
+                const target = targetMap[ticker];
+
+                const currentValue = current ? current.marketValue : 0;
+                const targetValue = target ? target.targetValue : 0;
+                const delta = currentValue - targetValue;
+
+                // Check if ticker is protected - skip selling if so
+                if (delta > tradeThreshold && !protectedTickers.has(ticker)) {
+                    // SELL (only if not protected)
+                    const percentSold = currentValue > 0 ? delta / currentValue : 0;
+                    const estLTGain = (current?.ltGain || 0) * percentSold;
+                    const estSTGain = (current?.stGain || 0) * percentSold;
+
+                    sells.push({
+                        ticker: ticker,
+                        assetClass: current?.assetClass || target?.assetClass || 'Unknown',
+                        amount: delta,
+                        estLTGain: estLTGain,
+                        estSTGain: estSTGain
+                    });
+                } else if (delta < -tradeThreshold) {
+                    // BUY
+                    buys.push({
+                        ticker: ticker,
+                        assetClass: target?.assetClass || current?.assetClass || 'Unknown',
+                        amount: Math.abs(delta)
+                    });
+                }
+            }
+
+            // Sort sells by amount (largest first)
+            sells.sort((a, b) => b.amount - a.amount);
+            buys.sort((a, b) => b.amount - a.amount);
+
+            // Asset class aggregation
+            const currentByClass = {};
+            const targetByClass = {};
+
+            for (const pos of currentPortfolio) {
+                if (!currentByClass[pos.assetClass]) {
+                    currentByClass[pos.assetClass] = 0;
+                }
+                currentByClass[pos.assetClass] += pos.marketValue;
+            }
+
+            for (const pos of targetPortfolio) {
+                const targetValue = totalValue * (pos.targetPercent / 100);
+                if (!targetByClass[pos.assetClass]) {
+                    targetByClass[pos.assetClass] = 0;
+                }
+                targetByClass[pos.assetClass] += targetValue;
+            }
+
+            const allClasses = new Set([
+                ...Object.keys(currentByClass),
+                ...Object.keys(targetByClass)
+            ]);
+
+            const assetClassSells = [];
+            const assetClassBuys = [];
+
+            for (const cls of allClasses) {
+                const currentVal = currentByClass[cls] || 0;
+                const targetVal = targetByClass[cls] || 0;
+                const diff = currentVal - targetVal;
+
+                if (diff > 0.01) {
+                    assetClassSells.push({
+                        assetClass: cls,
+                        currentValue: currentVal,
+                        targetValue: targetVal,
+                        difference: diff
+                    });
+                } else if (diff < -0.01) {
+                    assetClassBuys.push({
+                        assetClass: cls,
+                        currentValue: currentVal,
+                        targetValue: targetVal,
+                        difference: Math.abs(diff)
+                    });
+                }
+            }
+
+            assetClassSells.sort((a, b) => b.difference - a.difference);
+            assetClassBuys.sort((a, b) => b.difference - a.difference);
+
+            // Save for sorting
+            lastSells = sells;
+            lastBuys = buys;
+
+            // Reset sort state to default on new generation
+            sellsSortState = { column: 'amount', direction: 'desc' };
+            buysSortState = { column: 'amount', direction: 'desc' };
+
+            // Calculate totals
+            const totalSellAmount = sells.reduce((sum, s) => sum + s.amount, 0);
+            const totalSTGain = sells.reduce((sum, s) => sum + s.estSTGain, 0);
+            const totalLTGain = sells.reduce((sum, s) => sum + s.estLTGain, 0);
+            const totalBuyAmount = buys.reduce((sum, b) => sum + b.amount, 0);
+            // Note: totalTargetPercent already calculated earlier for validation
+
+            // Render results
+            renderSummaryStats(totalValue, totalSellAmount, totalBuyAmount, totalLTGain, totalSTGain);
+            renderSellsTable(sells, totalSellAmount, totalSTGain, totalLTGain);
+            renderBuysTable(buys, totalBuyAmount);
+            renderAssetClassTables(assetClassSells, assetClassBuys);
+            renderTargetModel(targetPortfolio, totalValue, totalTargetPercent);
+            renderProtectedTable(currentPortfolio);
+
+            // Show results
+            document.getElementById('results-section').classList.add('show');
+
+            // Show export buttons
+            document.getElementById('btn-export-excel').style.display = 'flex';
+            document.getElementById('btn-export-pdf').style.display = 'flex';
+
+            // Scroll to results
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        // Render summary stats
+        const renderSummaryStats = (totalValue, totalSell, totalBuy, ltGain, stGain) => {
+            const container = document.getElementById('summary-stats');
+            container.innerHTML = `
+                <div class="col-6 col-md-4 col-lg-2 mb-3">
+                    <div class="stat-card navy">
+                        <div class="stat-label">Total Portfolio</div>
+                        <div class="stat-value">${formatCurrency(totalValue)}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-label">Total to Sell</div>
+                        <div class="stat-value text-negative">${formatCurrency(totalSell)}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-2 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-label">Total to Buy</div>
+                        <div class="stat-value text-positive">${formatCurrency(totalBuy)}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3 mb-3">
+                    <div class="stat-card highlighted">
+                        <div class="stat-label">Est. LT Gain (Taxable)</div>
+                        <div class="stat-value ${ltGain >= 0 ? 'text-negative' : 'text-positive'}">${formatCurrency(ltGain)}</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4 col-lg-3 mb-3">
+                    <div class="stat-card highlighted">
+                        <div class="stat-label">Est. ST Gain (Taxable)</div>
+                        <div class="stat-value ${stGain >= 0 ? 'text-negative' : 'text-positive'}">${formatCurrency(stGain)}</div>
+                    </div>
+                </div>
+            `;
+        };
+
+        // Render sells table
+        const renderSellsTable = (sells, totalAmount, totalST, totalLT) => {
+            const tbody = document.getElementById('sells-tbody');
+            const tfoot = document.getElementById('sells-tfoot');
+
+            // Update sort headers
+            document.querySelectorAll('#sells-table th.sortable').forEach(th => {
+                th.classList.remove('asc', 'desc');
+                if (th.dataset.column === sellsSortState.column) {
+                    th.classList.add(sellsSortState.direction);
+                }
+            });
+
+            if (sells.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No positions to sell</td></tr>';
+                tfoot.innerHTML = '';
+                return;
+            }
+
+            tbody.innerHTML = sells.map(s => `
+                <tr>
+                    <td><span class="fw-bold text-navy">${escapeHtml(s.ticker)}</span><br><span class="text-muted" style="font-size: 0.6875rem;">${escapeHtml(s.assetClass)}</span></td>
+                    <td class="text-end mono fw-semibold text-negative">${formatCurrency(s.amount)}</td>
+                    <td class="text-end mono ${s.estSTGain > 0 ? 'text-negative' : s.estSTGain < 0 ? 'text-positive' : ''}">${formatCurrency(s.estSTGain)}</td>
+                    <td class="text-end mono ${s.estLTGain > 0 ? 'text-negative' : s.estLTGain < 0 ? 'text-positive' : ''}">${formatCurrency(s.estLTGain)}</td>
+                </tr>
+            `).join('');
+
+            tfoot.innerHTML = `
+                <tr>
+                    <td>TOTAL</td>
+                    <td class="text-end mono">${formatCurrency(totalAmount)}</td>
+                    <td class="text-end mono">${formatCurrency(totalST)}</td>
+                    <td class="text-end mono">${formatCurrency(totalLT)}</td>
+                </tr>
+            `;
+        };
+
+        // Render buys table
+        const renderBuysTable = (buys, totalAmount) => {
+            const tbody = document.getElementById('buys-tbody');
+            const tfoot = document.getElementById('buys-tfoot');
+
+            // Update sort headers
+            document.querySelectorAll('#buys-table th.sortable').forEach(th => {
+                th.classList.remove('asc', 'desc');
+                if (th.dataset.column === buysSortState.column) {
+                    th.classList.add(buysSortState.direction);
+                }
+            });
+
+            if (buys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-muted">No positions to buy</td></tr>';
+                tfoot.innerHTML = '';
+                return;
+            }
+
+            tbody.innerHTML = buys.map(b => `
+                <tr>
+                    <td><span class="fw-bold text-navy">${escapeHtml(b.ticker)}</span></td>
+                    <td class="text-muted">${escapeHtml(b.assetClass)}</td>
+                    <td class="text-end mono fw-semibold text-positive">${formatCurrency(b.amount)}</td>
+                </tr>
+            `).join('');
+
+            tfoot.innerHTML = `
+                <tr>
+                    <td colspan="2">TOTAL COST TO BUY</td>
+                    <td class="text-end mono">${formatCurrency(totalAmount)}</td>
+                </tr>
+            `;
+        };
+
+        // Render asset class tables with tax-efficient recommendations
+        const renderAssetClassTables = (sells, buys) => {
+            const sellsContainer = document.getElementById('asset-sells-container');
+            const buysTbody = document.getElementById('asset-buys-tbody');
+
+            if (sells.length === 0) {
+                sellsContainer.innerHTML = '<div class="no-positions-msg">No overweight asset classes</div>';
+            } else {
+                // Group current positions by asset class for recommendations
+                const positionsByClass = {};
+                for (const pos of lastCurrentPortfolio) {
+                    if (!positionsByClass[pos.assetClass]) {
+                        positionsByClass[pos.assetClass] = [];
+                    }
+                    // Calculate total gain and gain on cost basis
+                    // Cost = Market Value - Unrealized Gain
+                    // Gain on Cost = Unrealized Gain / Cost
+                    const totalGain = pos.ltGain + pos.stGain;
+                    const costBasis = pos.marketValue - totalGain;
+                    // Handle edge case: if costBasis <= 0 (100%+ gain), use Infinity for proper sorting
+                    let gainPerDollar;
+                    if (costBasis <= 0) {
+                        gainPerDollar = totalGain > 0 ? Infinity : 0;
+                    } else {
+                        gainPerDollar = totalGain / costBasis;
+                    }
+                    positionsByClass[pos.assetClass].push({
+                        ...pos,
+                        totalGain,
+                        gainPerDollar,
+                        isProtected: protectedTickers.has(pos.ticker)
+                    });
+                }
+
+                // Sort positions within each class by gain per dollar (lowest first = sell first)
+                for (const cls in positionsByClass) {
+                    positionsByClass[cls].sort((a, b) => a.gainPerDollar - b.gainPerDollar);
+                }
+
+                sellsContainer.innerHTML = sells.map((s, idx) => {
+                    const positions = positionsByClass[s.assetClass] || [];
+                    const availablePositions = positions.filter(p => !p.isProtected && p.marketValue > 0);
+
+                    // Generate recommendation text
+                    let recommendationHtml = '';
+                    if (availablePositions.length > 1) {
+                        const lowestGainPos = availablePositions[0];
+                        const highestGainPos = availablePositions[availablePositions.length - 1];
+
+                        if (lowestGainPos.ticker !== highestGainPos.ticker) {
+                            const lowestGainPct = (lowestGainPos.gainPerDollar * 100).toFixed(1);
+                            const highestGainPct = (highestGainPos.gainPerDollar * 100).toFixed(1);
+
+                            recommendationHtml = `
+                                <div class="tax-recommendation">
+                                    <div class="rec-label">💡 Tax-Efficient Recommendation</div>
+                                    <div class="rec-text">
+                                        To minimize taxable gains, prioritize selling 
+                                        <span class="ticker-highlight">${escapeHtml(lowestGainPos.ticker)}</span> 
+                                        (${lowestGainPct}% gain per $) before 
+                                        <span class="ticker-avoid">${escapeHtml(highestGainPos.ticker)}</span> 
+                                        (${highestGainPct}% gain per $).
+                                        ${lowestGainPos.gainPerDollar < 0 ? `<br><strong>Note:</strong> ${escapeHtml(lowestGainPos.ticker)} has unrealized losses — selling harvests a tax benefit!` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    } else if (availablePositions.length === 1 && availablePositions[0].gainPerDollar < 0) {
+                        recommendationHtml = `
+                            <div class="tax-recommendation">
+                                <div class="rec-label">💡 Tax-Loss Harvesting Opportunity</div>
+                                <div class="rec-text">
+                                    <span class="ticker-highlight">${escapeHtml(availablePositions[0].ticker)}</span> has unrealized losses — selling harvests a tax benefit!
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // Generate position rows
+                    const positionRowsHtml = positions.length > 0 ? positions.map((p, pIdx) => {
+                        const gainPct = (p.gainPerDollar * 100).toFixed(1);
+                        const isLowest = pIdx === 0 && positions.filter(x => !x.isProtected).length > 1 && !p.isProtected;
+                        const isHighest = pIdx === positions.length - 1 && positions.filter(x => !x.isProtected).length > 1 && !p.isProtected;
+
+                        let priorityBadge = '';
+                        let rowClass = '';
+                        if (p.isProtected) {
+                            priorityBadge = '<span class="priority-badge" style="background: #7c3aed; color: white;">Protected</span>';
+                        } else if (isLowest) {
+                            priorityBadge = '<span class="priority-badge sell-first">Sell First</span>';
+                            rowClass = 'recommended';
+                        } else if (isHighest) {
+                            priorityBadge = '<span class="priority-badge sell-last">Sell Last</span>';
+                            rowClass = 'avoid';
+                        }
+
+                        const gainClass = p.gainPerDollar < 0 ? 'gain-low' : p.gainPerDollar > 0.1 ? 'gain-high' : '';
+
+                        return `
+                            <div class="position-row ${rowClass}">
+                                <div class="pos-ticker">${escapeHtml(p.ticker)}${priorityBadge}</div>
+                                <div class="pos-value">${formatCurrency(p.marketValue)}</div>
+                                <div class="pos-gain ${gainClass}">
+                                    ${gainPct}% gain/$ 
+                                    <span style="color: #94a3b8; font-size: 0.625rem;">(${formatCurrency(p.totalGain)})</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('') : '<div class="no-positions-msg">No positions in this class</div>';
+
+                    return `
+                        <div class="asset-class-section">
+                            <div class="asset-class-header" onclick="toggleAssetClassDetails(${idx})">
+                                <div>
+                                    <span class="class-name">${s.assetClass}</span>
+                                    <span style="color: #94a3b8; font-size: 0.6875rem; margin-left: 0.5rem;">${positions.length} position${positions.length !== 1 ? 's' : ''}</span>
+                                </div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="class-amount">-${formatCurrency(s.difference)}</span>
+                                    <svg class="expand-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m6 9 6 6 6-6"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="asset-class-details" id="asset-class-details-${idx}">
+                                ${recommendationHtml}
+                                ${positionRowsHtml}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            if (buys.length === 0) {
+                buysTbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No underweight asset classes</td></tr>';
+            } else {
+                buysTbody.innerHTML = buys.map(b => `
+                    <tr>
+                        <td class="fw-semibold">${b.assetClass}</td>
+                        <td class="text-end mono">${formatCurrency(b.currentValue)}</td>
+                        <td class="text-end mono">${formatCurrency(b.targetValue)}</td>
+                        <td class="text-end mono fw-bold text-positive">${formatCurrency(b.difference)}</td>
+                    </tr>
+                `).join('');
+            }
+        };
+
+        // Toggle asset class details expansion
+        const toggleAssetClassDetails = (idx) => {
+            const details = document.getElementById(`asset-class-details-${idx}`);
+            const header = details.previousElementSibling;
+
+            if (details.classList.contains('expanded')) {
+                details.classList.remove('expanded');
+                header.classList.remove('expanded');
+            } else {
+                details.classList.add('expanded');
+                header.classList.add('expanded');
+            }
+        };
+
+        // Render target model
+        const renderTargetModel = (targetPortfolio, totalValue, totalPercent) => {
+            const tbody = document.getElementById('target-model-tbody');
+            const tfoot = document.getElementById('target-model-tfoot');
+
+            // Sort by target percent descending
+            const sorted = [...targetPortfolio].sort((a, b) => b.targetPercent - a.targetPercent);
+
+            tbody.innerHTML = sorted.map(p => {
+                const targetValue = totalValue * (p.targetPercent / 100);
+                return `
+                    <tr>
+                        <td class="fw-bold text-navy">${escapeHtml(p.ticker)}</td>
+                        <td class="text-muted">${escapeHtml(p.assetClass)}</td>
+                        <td class="text-end mono">${formatPercent(p.targetPercent)}</td>
+                        <td class="text-end mono fw-semibold">${formatCurrency(targetValue)}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            tfoot.innerHTML = `
+                <tr>
+                    <td colspan="2">TOTAL</td>
+                    <td class="text-end mono">${formatPercent(totalPercent)}</td>
+                    <td class="text-end mono">${formatCurrency(totalValue)}</td>
+                </tr>
+            `;
+        };
+
+        // Load sample data - Current Portfolio (6 columns: Ticker, %, MarketValue, Qty, LTGain, STGain)
+        const loadSampleCurrent = () => {
+            const sampleData = `Ticker\t%\tMarket Value\tQty\tLT Gain\tST Gain
+VTI\t25%\t$250,000\t1,000\t$45,000\t$5,000
+VXUS\t15%\t$150,000\t2,500\t$12,000\t$3,000
+BND\t20%\t$200,000\t2,000\t$2,000\t($1,000)
+VNQ\t10%\t$100,000\t1,200\t$18,000\t$2,500
+VB\t8%\t$80,000\t1,800\t$15,000\t$4,000
+VCIT\t7%\t$70,000\t700\t$1,500\t$500
+Cash\t15%\t$150,000\t150,000\t$0\t$0`;
+            document.getElementById('currentPortfolio').value = sampleData;
+        };
+
+        // Load sample data - Target Portfolio
+        const loadSampleTarget = () => {
+            const sampleData = `Ticker	Asset Class	%
+VTI	US Large Cap	30%
+VXUS	International	20%
+BND	US Bonds	25%
+VNQ	Real Estate	5%
+VB	US Small Cap	10%
+VCIT	Corp Bonds	5%
+Cash	Cash	5%`;
+            document.getElementById('targetPortfolio').value = sampleData;
+        };
+
+        // Render protected positions table
+        const renderProtectedTable = (currentPortfolio) => {
+            const tbody = document.getElementById('protected-tbody');
+
+            if (currentPortfolio.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No positions available</td></tr>';
+                return;
+            }
+
+            // Sort by market value descending
+            const sorted = [...currentPortfolio].sort((a, b) => b.marketValue - a.marketValue);
+
+            tbody.innerHTML = sorted.map(p => {
+                const isProtected = protectedTickers.has(p.ticker);
+                return `
+                    <tr class="${isProtected ? 'protected-row' : ''}">
+                        <td>
+                            <button class="btn-protect ${isProtected ? 'active' : ''}" onclick="toggleProtection('${escapeHtml(p.ticker)}')">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="${isProtected ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+                                </svg>
+                                ${isProtected ? 'Protected' : 'Protect'}
+                            </button>
+                        </td>
+                        <td class="fw-bold text-navy">${escapeHtml(p.ticker)}</td>
+                        <td class="text-muted">${escapeHtml(p.assetClass)}</td>
+                        <td class="text-end mono">${formatCurrency(p.marketValue)}</td>
+                        <td class="text-end mono ${p.ltGain > 0 ? 'text-negative' : p.ltGain < 0 ? 'text-positive' : ''}">${formatCurrency(p.ltGain)}</td>
+                        <td class="text-end mono ${p.stGain > 0 ? 'text-negative' : p.stGain < 0 ? 'text-positive' : ''}">${formatCurrency(p.stGain)}</td>
+                    </tr>
+                `;
+            }).join('');
+        };
+
+        // Toggle protection for a ticker
+        const toggleProtection = (ticker) => {
+            if (protectedTickers.has(ticker)) {
+                protectedTickers.delete(ticker);
+            } else {
+                protectedTickers.add(ticker);
+            }
+            // Auto-recalculate to reflect protection changes in all tables
+            if (lastCurrentPortfolio.length > 0 && lastTargetPortfolio.length > 0) {
+                generatePlan();
+            } else {
+                renderProtectedTable(lastCurrentPortfolio);
+            }
+        };
+
+        // Recalculate with current protections
+        const recalculateWithProtections = () => {
+            if (lastCurrentPortfolio.length === 0 || lastTargetPortfolio.length === 0) {
+                showError('Please generate a plan first before recalculating.');
+                return;
+            }
+            generatePlan();
+        };
+
+        // Clear all protections
+        const clearAllProtections = () => {
+            protectedTickers.clear();
+            // Auto-recalculate if we have data
+            if (lastCurrentPortfolio.length > 0 && lastTargetPortfolio.length > 0) {
+                generatePlan();
+            } else if (lastCurrentPortfolio.length > 0) {
+                renderProtectedTable(lastCurrentPortfolio);
+            }
+        };
+
+        // Export to Excel
+        const exportToExcel = () => {
+            if (lastCurrentPortfolio.length === 0) {
+                alert('Please generate a rebalancing plan first.');
+                return;
+            }
+
+            const wb = XLSX.utils.book_new();
+            const totalValue = lastCurrentPortfolio.reduce((sum, pos) => sum + pos.marketValue, 0);
+
+            // Build current holdings map
+            const currentMap = {};
+            for (const pos of lastCurrentPortfolio) {
+                currentMap[pos.ticker] = pos;
+            }
+
+            // Build target map
+            const targetMap = {};
+            for (const pos of lastTargetPortfolio) {
+                targetMap[pos.ticker] = {
+                    ...pos,
+                    targetValue: totalValue * (pos.targetPercent / 100)
+                };
+            }
+
+            // Calculate sells and buys
+            const allTickers = new Set([
+                ...lastCurrentPortfolio.map(p => p.ticker),
+                ...lastTargetPortfolio.map(p => p.ticker)
+            ]);
+
+            const sells = [];
+            const buys = [];
+
+            for (const ticker of allTickers) {
+                const current = currentMap[ticker];
+                const target = targetMap[ticker];
+                const currentValue = current ? current.marketValue : 0;
+                const targetValue = target ? target.targetValue : 0;
+                const delta = currentValue - targetValue;
+
+                if (delta > 0.01 && !protectedTickers.has(ticker)) {
+                    const percentSold = currentValue > 0 ? delta / currentValue : 0;
+                    sells.push({
+                        'Ticker': ticker,
+                        'Asset Class': current?.assetClass || 'Unknown',
+                        'Amount to Sell': delta,
+                        'Est. ST Gain': (current?.stGain || 0) * percentSold,
+                        'Est. LT Gain': (current?.ltGain || 0) * percentSold
+                    });
+                } else if (delta < -0.01) {
+                    buys.push({
+                        'Ticker': ticker,
+                        'Asset Class': target?.assetClass || 'Unknown',
+                        'Amount to Buy': Math.abs(delta)
+                    });
+                }
+            }
+
+            // Get client info for Excel
+            const clientName = document.getElementById('clientName').value.trim() || 'Not Specified';
+            const accountNumber = document.getElementById('accountNumber').value.trim() || 'Not Specified';
+
+            // Sheet 1: Summary
+            const summaryData = [
+                ['PORTFOLIO REBALANCING SUMMARY'],
+                [''],
+                ['Client Name', clientName],
+                ['Account Number', accountNumber],
+                ['Generated', new Date().toLocaleString()],
+                [''],
+                ['Total Portfolio Value', totalValue],
+                ['Total to Sell', sells.reduce((sum, s) => sum + s['Amount to Sell'], 0)],
+                ['Total to Buy', buys.reduce((sum, b) => sum + b['Amount to Buy'], 0)],
+                ['Est. Total LT Gain', sells.reduce((sum, s) => sum + s['Est. LT Gain'], 0)],
+                ['Est. Total ST Gain', sells.reduce((sum, s) => sum + s['Est. ST Gain'], 0)],
+                [''],
+                ['Protected Positions', Array.from(protectedTickers).join(', ') || 'None']
+            ];
+            const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+            wsSummary['!cols'] = [{ wch: 25 }, { wch: 20 }];
+            XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+            // Sheet 2: Positions to Sell
+            if (sells.length > 0) {
+                const sellsWithTotal = [...sells, {
+                    'Ticker': 'TOTAL',
+                    'Asset Class': '',
+                    'Amount to Sell': sells.reduce((sum, s) => sum + s['Amount to Sell'], 0),
+                    'Est. ST Gain': sells.reduce((sum, s) => sum + s['Est. ST Gain'], 0),
+                    'Est. LT Gain': sells.reduce((sum, s) => sum + s['Est. LT Gain'], 0)
+                }];
+                const wsSells = XLSX.utils.json_to_sheet(sellsWithTotal);
+                wsSells['!cols'] = [{ wch: 12 }, { wch: 18 }, { wch: 18 }, { wch: 15 }, { wch: 15 }];
+                XLSX.utils.book_append_sheet(wb, wsSells, 'Positions to Sell');
+            }
+
+            // Sheet 3: Positions to Buy
+            if (buys.length > 0) {
+                const buysWithTotal = [...buys, {
+                    'Ticker': 'TOTAL',
+                    'Asset Class': '',
+                    'Amount to Buy': buys.reduce((sum, b) => sum + b['Amount to Buy'], 0)
+                }];
+                const wsBuys = XLSX.utils.json_to_sheet(buysWithTotal);
+                wsBuys['!cols'] = [{ wch: 12 }, { wch: 18 }, { wch: 18 }];
+                XLSX.utils.book_append_sheet(wb, wsBuys, 'Positions to Buy');
+            }
+
+            // Sheet 4: Asset Class Analysis
+            const currentByClass = {};
+            const targetByClass = {};
+
+            for (const pos of lastCurrentPortfolio) {
+                if (!currentByClass[pos.assetClass]) currentByClass[pos.assetClass] = 0;
+                currentByClass[pos.assetClass] += pos.marketValue;
+            }
+
+            for (const pos of lastTargetPortfolio) {
+                const targetValue = totalValue * (pos.targetPercent / 100);
+                if (!targetByClass[pos.assetClass]) targetByClass[pos.assetClass] = 0;
+                targetByClass[pos.assetClass] += targetValue;
+            }
+
+            const allClasses = new Set([...Object.keys(currentByClass), ...Object.keys(targetByClass)]);
+            const assetClassData = [];
+
+            for (const cls of allClasses) {
+                const currentVal = currentByClass[cls] || 0;
+                const targetVal = targetByClass[cls] || 0;
+                const diff = currentVal - targetVal;
+                assetClassData.push({
+                    'Asset Class': cls,
+                    'Current Value': currentVal,
+                    'Target Value': targetVal,
+                    'Difference': diff,
+                    'Status': diff > 0.01 ? 'Overweight (Reduce)' : diff < -0.01 ? 'Underweight (Add)' : 'On Target'
+                });
+            }
+
+            const wsAssetClass = XLSX.utils.json_to_sheet(assetClassData);
+            wsAssetClass['!cols'] = [{ wch: 18 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 20 }];
+            XLSX.utils.book_append_sheet(wb, wsAssetClass, 'Asset Class Analysis');
+
+            // Sheet 5: Target Model
+            const targetModelData = lastTargetPortfolio.map(p => ({
+                'Ticker': p.ticker,
+                'Asset Class': p.assetClass,
+                'Target %': p.targetPercent / 100,
+                'Target Value': totalValue * (p.targetPercent / 100)
+            }));
+
+            const wsTarget = XLSX.utils.json_to_sheet(targetModelData);
+            wsTarget['!cols'] = [{ wch: 12 }, { wch: 18 }, { wch: 12 }, { wch: 18 }];
+            XLSX.utils.book_append_sheet(wb, wsTarget, 'Target Model');
+
+            // Sheet 6: Current Holdings (for reference)
+            const currentData = lastCurrentPortfolio.map(p => ({
+                'Ticker': p.ticker,
+                'Asset Class': p.assetClass,
+                'Current %': p.percent / 100,
+                'Market Value': p.marketValue,
+                'Quantity': p.quantity,
+                'LT Unrealized Gain': p.ltGain,
+                'ST Unrealized Gain': p.stGain,
+                'Protected': protectedTickers.has(p.ticker) ? 'Yes' : 'No'
+            }));
+
+            const wsCurrent = XLSX.utils.json_to_sheet(currentData);
+            wsCurrent['!cols'] = [{ wch: 12 }, { wch: 18 }, { wch: 12 }, { wch: 15 }, { wch: 12 }, { wch: 18 }, { wch: 18 }, { wch: 12 }];
+            XLSX.utils.book_append_sheet(wb, wsCurrent, 'Current Holdings');
+
+            // Download
+            const fileName = `Portfolio_Rebalancing_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        };
+
+        // Export to PDF
+        const exportToPDF = () => {
+            if (lastCurrentPortfolio.length === 0) {
+                alert('Please generate a rebalancing plan first.');
+                return;
+            }
+
+            const totalValue = lastCurrentPortfolio.reduce((sum, pos) => sum + pos.marketValue, 0);
+
+            // Use existing calculated data for consistency and to match screen sort order
+            let sells = [...lastSells];
+            let buys = [...lastBuys];
+
+            // Apply current sort state
+            sells = sortData(sells, sellsSortState.column, sellsSortState.direction);
+            buys = sortData(buys, buysSortState.column, buysSortState.direction);
+
+            const totalSell = sells.reduce((sum, s) => sum + s.amount, 0);
+            const totalBuy = buys.reduce((sum, b) => sum + b.amount, 0);
+            const totalLTGain = sells.reduce((sum, s) => sum + s.estLTGain, 0);
+            const totalSTGain = sells.reduce((sum, s) => sum + s.estSTGain, 0);
+
+            // Build tax-efficient recommendations by asset class
+            const positionsByClass = {};
+            for (const pos of lastCurrentPortfolio) {
+                if (!positionsByClass[pos.assetClass]) {
+                    positionsByClass[pos.assetClass] = [];
+                }
+                const totalGain = pos.ltGain + pos.stGain;
+                const costBasis = pos.marketValue - totalGain;
+                let gainPerDollar;
+                if (costBasis <= 0) {
+                    gainPerDollar = totalGain > 0 ? Infinity : 0;
+                } else {
+                    gainPerDollar = totalGain / costBasis;
+                }
+                positionsByClass[pos.assetClass].push({
+                    ...pos,
+                    totalGain,
+                    gainPerDollar,
+                    isProtected: protectedTickers.has(pos.ticker)
+                });
+            }
+
+            // Sort positions within each class by gain per dollar (lowest first)
+            for (const cls in positionsByClass) {
+                positionsByClass[cls].sort((a, b) => a.gainPerDollar - b.gainPerDollar);
+            }
+
+            // Build simplified recommendations for PDF (just text, no tables)
+            // Use unique asset classes to prevent duplicates
+            const pdfRecommendations = [];
+            const seenAssetClasses = new Set();
+
+            for (const s of sells) {
+                // Skip if we've already generated a recommendation for this asset class
+                if (seenAssetClasses.has(s.assetClass)) continue;
+                seenAssetClasses.add(s.assetClass);
+
+                const positions = positionsByClass[s.assetClass] || [];
+                const available = positions.filter(p => !p.isProtected && p.marketValue > 0);
+
+                if (available.length >= 2) {
+                    const lowest = available[0];
+                    const highest = available[available.length - 1];
+                    const lowPct = Number.isFinite(lowest.gainPerDollar) ? (lowest.gainPerDollar * 100).toFixed(1) : '∞';
+                    const highPct = Number.isFinite(highest.gainPerDollar) ? (highest.gainPerDollar * 100).toFixed(1) : '∞';
+                    let recText = `<strong>${escapeHtml(s.assetClass)}:</strong> Sell <span style="color: #047857; font-weight: 600;">${escapeHtml(lowest.ticker)}</span> (${lowPct}% gain) before <span style="color: #dc2626; font-weight: 600;">${escapeHtml(highest.ticker)}</span> (${highPct}% gain)`;
+                    if (lowest.gainPerDollar < 0) {
+                        recText += ` — <em>tax-loss harvesting opportunity!</em>`;
+                    }
+                    pdfRecommendations.push(recText);
+                } else if (available.length === 1 && available[0].gainPerDollar < 0) {
+                    pdfRecommendations.push(`<strong>${escapeHtml(s.assetClass)}:</strong> <span style="color: #047857; font-weight: 600;">${escapeHtml(available[0].ticker)}</span> has unrealized losses — tax-loss harvesting opportunity!`);
+                }
+            }
+
+            const pdfRecommendationsHtml = pdfRecommendations.length > 0 ? pdfRecommendations.map(r =>
+                `<div style="padding: 8px 12px; border-bottom: 1px solid #e2e8f0; font-size: 10px;">💡 ${r}</div>`
+            ).join('') : '';
+
+            // Create PDF content
+            const pdfContent = document.createElement('div');
+            pdfContent.style.fontFamily = "'DM Sans', Arial, sans-serif";
+            pdfContent.style.padding = '20px';
+            pdfContent.style.maxWidth = '800px';
+            pdfContent.style.margin = '0 auto';
+            pdfContent.style.fontSize = '11px';
+            pdfContent.style.color = '#1a1a2e';
+
+            // Get client info
+            const clientName = document.getElementById('clientName').value.trim() || 'Not Specified';
+            const accountNumber = document.getElementById('accountNumber').value.trim() || 'Not Specified';
+
+            pdfContent.innerHTML = `
+                <div style="page-break-inside: avoid;">
+                    <div style="background: linear-gradient(135deg, #00205B 0%, #003380 100%); color: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; border-bottom: 4px solid #D4AF37;">
+                        <h1 style="font-size: 20px; margin: 0 0 8px 0; font-weight: 700;">Portfolio Rebalancing Plan</h1>
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; opacity: 0.85;">
+                            <div><strong>Client:</strong> ${escapeHtml(clientName)} | <strong>Account:</strong> ${escapeHtml(accountNumber)}</div>
+                            <div>Generated: ${new Date().toLocaleString()}</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 25px;">
+                        <div style="background: #00205B; color: white; padding: 12px; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 9px; text-transform: uppercase; opacity: 0.8; margin-bottom: 4px;">Total Portfolio</div>
+                            <div style="font-size: 14px; font-weight: 700;">${formatCurrency(totalValue)}</div>
+                        </div>
+                        <div style="background: white; border: 2px solid #e2e8f0; padding: 12px; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 9px; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">Total to Sell</div>
+                            <div style="font-size: 14px; font-weight: 700; color: #ef4444;">${formatCurrency(totalSell)}</div>
+                        </div>
+                        <div style="background: white; border: 2px solid #e2e8f0; padding: 12px; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 9px; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">Total to Buy</div>
+                            <div style="font-size: 14px; font-weight: 700; color: #10b981;">${formatCurrency(totalBuy)}</div>
+                        </div>
+                        <div style="background: white; border: 2px solid #D4AF37; padding: 12px; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 9px; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">Est. LT Gain</div>
+                            <div style="font-size: 14px; font-weight: 700; color: #00205B;">${formatCurrency(totalLTGain)}</div>
+                        </div>
+                        <div style="background: white; border: 2px solid #D4AF37; padding: 12px; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 9px; text-transform: uppercase; color: #64748b; margin-bottom: 4px;">Est. ST Gain</div>
+                            <div style="font-size: 14px; font-weight: 700; color: #00205B;">${formatCurrency(totalSTGain)}</div>
+                        </div>
+                    </div>
+                </div>
+                
+                ${protectedTickers.size > 0 ? `
+                <div style="page-break-inside: avoid; margin-bottom: 20px;">
+                    <div style="background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); padding: 10px 15px; border-radius: 6px;">
+                        <strong style="color: #7c3aed;">Protected Positions (Excluded from Sales):</strong> ${Array.from(protectedTickers).join(', ')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div style="page-break-inside: avoid; margin-bottom: 25px;">
+                    <div style="background: #dc2626; color: white; padding: 8px 15px; font-size: 12px; font-weight: 600; margin-bottom: 10px; border-radius: 6px;">POSITIONS TO SELL</div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+                        <thead>
+                            <tr style="background: #f8fafc;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 700;">Ticker</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 700;">Asset Class</th>
+                                <th style="padding: 8px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700;">Amount to Sell</th>
+                                <th style="padding: 8px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700;">Est. ST Gain</th>
+                                <th style="padding: 8px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700;">Est. LT Gain</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${sells.length > 0 ? sells.map(s => `
+                                <tr>
+                                    <td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; font-weight: 600;">${s.ticker}</td>
+                                    <td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; color: #64748b;">${s.assetClass}</td>
+                                    <td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right; color: #ef4444; font-weight: 600;">${formatCurrency(s.amount)}</td>
+                                    <td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right;">${formatCurrency(s.estSTGain)}</td>
+                                    <td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right;">${formatCurrency(s.estLTGain)}</td>
+                                </tr>
+                            `).join('') : '<tr><td colspan="5" style="padding: 15px; text-align: center; color: #94a3b8;">No positions to sell</td></tr>'}
+                            <tr style="background: #00205B; color: white; font-weight: 700;">
+                                <td style="padding: 8px;" colspan="2">TOTAL</td>
+                                <td style="padding: 8px; text-align: right;">${formatCurrency(totalSell)}</td>
+                                <td style="padding: 8px; text-align: right;">${formatCurrency(totalSTGain)}</td>
+                                <td style="padding: 8px; text-align: right;">${formatCurrency(totalLTGain)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                ${pdfRecommendationsHtml ? `
+                <div style="page-break-inside: avoid; margin-bottom: 20px;">
+                    <div style="background: #D4AF37; color: #00205B; padding: 8px 15px; font-size: 12px; font-weight: 600; margin-bottom: 10px; border-radius: 6px;">💡 TAX-EFFICIENT RECOMMENDATIONS</div>
+                    <div style="border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden;">
+                    ${pdfRecommendationsHtml}
+                    </div>
+                </div>
+                ` : ''}
+                
+                <div style="page-break-inside: avoid; margin-bottom: 25px;">
+                    <div style="background: #059669; color: white; padding: 8px 15px; font-size: 12px; font-weight: 600; margin-bottom: 10px; border-radius: 6px;">POSITIONS TO BUY</div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+                        <thead>
+                            <tr style="background: #f8fafc;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 700;">Ticker</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 700;">Asset Class</th>
+                                <th style="padding: 8px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700;">Amount to Buy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${buys.length > 0 ? buys.map(b => `
+                                <tr>
+                                    <td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; font-weight: 600;">${b.ticker}</td>
+                                    <td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; color: #64748b;">${b.assetClass}</td>
+                                    <td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right; color: #10b981; font-weight: 600;">${formatCurrency(b.amount)}</td>
+                                </tr>
+                            `).join('') : '<tr><td colspan="3" style="padding: 15px; text-align: center; color: #94a3b8;">No positions to buy</td></tr>'}
+                            <tr style="background: #00205B; color: white; font-weight: 700;">
+                                <td style="padding: 8px;" colspan="2">TOTAL COST TO BUY</td>
+                                <td style="padding: 8px; text-align: right;">${formatCurrency(totalBuy)}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="page-break-inside: avoid; margin-bottom: 25px;">
+                    <div style="background: #00205B; color: white; padding: 8px 15px; font-size: 12px; font-weight: 600; margin-bottom: 10px; border-radius: 6px;">TARGET PORTFOLIO MODEL</div>
+                    <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+                        <thead>
+                            <tr style="background: #f8fafc;">
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 700;">Ticker</th>
+                                <th style="padding: 8px; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 700;">Asset Class</th>
+                                <th style="padding: 8px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700;">Target %</th>
+                                <th style="padding: 8px; text-align: right; border-bottom: 2px solid #e2e8f0; font-weight: 700;">Target Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${lastTargetPortfolio.map(p => `
+                                <tr>
+                                    <td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; font-weight: 600;">${p.ticker}</td>
+                                    <td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; color: #64748b;">${p.assetClass}</td>
+                                    <td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right;">${formatPercent(p.targetPercent)}</td>
+                                    <td style="padding: 6px 8px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: 600;">${formatCurrency(totalValue * (p.targetPercent / 100))}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="page-break-inside: avoid; margin-top: 30px; padding: 15px; background: #f8fafc; border-radius: 6px; font-size: 9px; color: #64748b;">
+                    <strong>Disclaimer:</strong> This document provides estimates for informational purposes only and does not constitute tax, legal, or investment advice. 
+                    Tax calculations are simplified estimates using pro-rata allocation and may not reflect actual tax liability. 
+                    Consult with a qualified tax professional or financial advisor before making investment decisions.
+                </div>
+            `;
+
+            // Generate PDF
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: `Portfolio_Rebalancing_${new Date().toISOString().slice(0, 10)}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(pdfContent).save();
+        };
+    </script>
+</body>
+
+</html>
